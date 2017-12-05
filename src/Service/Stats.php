@@ -38,6 +38,8 @@ class Stats
     {
         $this->database = $database;
         $this->clients = $clients;
+        $this->model = new UpdateStats();
+        $this->getModel();
     }
 
     /**

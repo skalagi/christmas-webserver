@@ -6,4 +6,4 @@ parameters:
   avr_port: 11222
   avr_timeout: 180
 
-  sqlite: '../christmas.sqlite'
+  sqlite: '../../christmas.sqlite'

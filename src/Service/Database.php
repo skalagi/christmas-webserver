@@ -17,7 +17,8 @@ class Database
      */
     public function __construct($pathToDatabase)
     {
-        $this->connection = new \PDO('sqlite:'.$pathToDatabase);
+        $this->connection = new \PDO('sqlite:'.__DIR__.DIRECTORY_SEPARATOR.$pathToDatabase);
+        $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
     /**
@@ -41,11 +42,12 @@ class Database
     public function getLogs(array $criteria = [])
     {
         $sqlWhere = '';
-        if(isset($criteria['name'])) $sqlWhere .= ' WHERE `name` = "'.$criteria['name'].'"';
-        if(isset($criteria['created_time'])) $sqlWhere .= ' WHERE `created_time` = "'.$criteria['created_time'].'"';
+        if(isset($criteria['name'])) $sqlWhere .= ' AND `name` = \''.$criteria['name'].'\'';
+        if(isset($criteria['created_time'])) $sqlWhere .= ' AND `created_time` LIKE \''.$criteria['created_time'].'\'';
+        $sqlWhere = ' WHERE '.ltrim($sqlWhere, ' AND');
 
         $logs = [];
-        foreach($this->connection->query('SELECT * FROM `syslog`'.$sqlWhere) as $row) {
+        foreach($this->connection->query('SELECT * FROM syslog t'.$sqlWhere) as $row) {
             $log = new LogEntity();
             $log->name = $row['name'];
             $log->createdTime = new \DateTime($row['created_time']);
