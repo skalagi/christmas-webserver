@@ -27,12 +27,15 @@ class Database
      */
     public function addLog(LogEntity $log)
     {
-        return $this->connection->query(sprintf('INSERT INTO `syslog` SET
-          `name` = "%s",
-          `created_time` = "%s",
-          `initiator` = "%s",
-          `data` = "%s"
-        ', $log->name, $log->createdTime->format('Y-m-d H:i:s'), $log->initiator, json_encode($log->data)));
+        return $this->connection->query(sprintf('INSERT INTO `syslog`(`name`, `created_time`, `initiator`, `data`)
+           VALUES("%s", "%s", "%s", \'%s\')
+        ',
+            $log->name,
+            $log->createdTime->format('Y-m-d H:i:s'),
+            $log->initiator,
+            json_encode($log->data)
+
+        ));
     }
 
     /**

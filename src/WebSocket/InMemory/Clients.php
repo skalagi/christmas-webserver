@@ -40,11 +40,7 @@ class Clients implements \Iterator
     public function next()
     {
         $this->index++;
-        if($this->index >= count($this->array)) {
-            $this->index = 0;
-        }
-
-        return $this->array[$this->index];
+        return isset($this->array[$this->index]) ? $this->array[$this->index] : null;
     }
 
     /**
