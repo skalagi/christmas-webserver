@@ -16,7 +16,7 @@ class ChangeState extends AbstractTransportJSON
     /**
      * @inheritdoc
      */
-    public function __construct(array $fields)
+    public function __construct(array $fields = [])
     {
         $this->fields['identity'] = null;
         $this->fields['state'] = null;

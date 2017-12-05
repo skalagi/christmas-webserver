@@ -12,7 +12,7 @@ class ChangeStateBroadcast extends AbstractTransportJSON
     /**
      * @inheritdoc
      */
-    public function __construct(array $fields)
+    public function __construct(array $fields = [])
     {
         $this->fields['action'] = 'ChangeState';
         $this->fields['input'] = null;

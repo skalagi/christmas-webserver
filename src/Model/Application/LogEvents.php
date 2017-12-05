@@ -10,6 +10,8 @@ class LogEvents
     const CHANGE_STATE_CONTROLLER = 'change_state_ctrl';
     const CHANGE_COLOR_CONTROLLER = 'change_color_ctrl';
     const AVR_CONNECTED = 'avr_connected';
+    const AVR_ERROR = 'avr_error';
+    const AVR_CRITICAL = 'avr_critical';
     const BUSY_ERROR = 'busy_error';
 
     /**
@@ -24,6 +26,7 @@ class LogEvents
         self::CHANGE_COLOR_CONTROLLER => 'Zmiana koloru',
         self::CHANGE_STATE_CONTROLLER => 'Zmiana stanu',
         self::AVR_CONNECTED => 'Podłączono do sterownika',
+        self::AVR_ERROR => 'Błąd sterownika AVR',
         self::BUSY_ERROR => 'Wyrzucenie klienta'
     ];
 

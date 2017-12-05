@@ -17,7 +17,7 @@ class UpdateStats extends AbstractTransportJSON
     /**
      * @inheritdoc
      */
-    public function __construct(array $fields)
+    public function __construct(array $fields = [])
     {
         $this->fields['currentOnline'] = null;
         $this->fields['todayVisits'] = null;
