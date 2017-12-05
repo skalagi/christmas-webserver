@@ -4,11 +4,13 @@ namespace Syntax\Controller;
 
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
+use Syntax\Exception\AVRException;
 use Syntax\Exception\ChangeStateException;
 use Syntax\Model\Application\LogEntity;
 use Syntax\Model\Application\LogEvents;
 use Syntax\Model\Transport\ChangeStateBroadcast;
 use Syntax\Model\Transport\ControllerInput\ChangeState;
+use Syntax\Model\Transport\Error;
 use Syntax\Service\Database;
 use Syntax\WebSocket\InMemory\Clients;
 use Syntax\WebSocket\InMemory\Lights;
@@ -82,25 +84,31 @@ class ChangeStateController implements ControllerInterface
             }
             throw isset($exception) ? $exception : new ChangeStateException('Server is currently busy!');
         }
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->busy = (int)$from->resourceId;
 
-        $this->lights->changeState($input->identity, $input->state);
-        $this->clients->broadcastMessage(new ChangeStateBroadcast([
-            'value' => [
-                'identity' => $input->identity,
-                'state' => $input->state
-            ]
-        ]), $from);
+        try {
+            /** @noinspection PhpUndefinedFieldInspection */
+            $this->busy = (int)$from->resourceId;
 
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->logChangeState((int)$from->resourceId, $from->remoteAddress);
+            $this->lights->changeState($input->identity, $input->state);
+            $this->clients->broadcastMessage(new ChangeStateBroadcast([
+                'value' => [
+                    'identity' => $input->identity,
+                    'state' => $input->state
+                ]
+            ]), $from);
 
-        $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
-            $this->busy = false;
-        });
+            /** @noinspection PhpUndefinedFieldInspection */
+            $this->logChangeState((int)$from->resourceId, $from->remoteAddress);
 
-        return $input->createResponse('OK');
+            $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
+                $this->busy = false;
+            });
+
+            return $input->createResponse('OK');
+        } catch(AVRException $e) {
+            $this->responseAVRError($from, $e->getMessage());
+            return $input->createResponse('ERR!');
+        }
     }
 
     /**
@@ -117,6 +125,18 @@ class ChangeStateController implements ControllerInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param ConnectionInterface $conn
+     * @param $message
+     */
+    private function responseAVRError(ConnectionInterface $conn, $message)
+    {
+        $error = new Error();
+        $error->reason = $message;
+        $error->type = AVRException::class;
+        $conn->send($error->_toJSON());
     }
 
     /**

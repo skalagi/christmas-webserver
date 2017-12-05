@@ -2,6 +2,11 @@
 
 namespace Syntax\WebSocket\InMemory;
 
+use Syntax\Exception\AVRException;
+use Syntax\Model\Application\LogEntity;
+use Syntax\Model\Application\LogEvents;
+use Syntax\Service\Database;
+
 class Lights
 {
     /**
@@ -13,6 +18,11 @@ class Lights
      * @var resource
      */
     private $connector;
+
+    /**
+     * @var Database
+     */
+    private $database;
 
     /**
      * @var null|int
@@ -28,6 +38,9 @@ class Lights
     const MAX_RETRY = 20;
     const LIGHTS_STORAGE_SIZE = 4;
 
+    /**
+     * @var array
+     */
     private $avr = [];
 
     /**
@@ -59,18 +72,19 @@ class Lights
             $this->connector = @fsockopen($this->avr['host'], $this->avr['port'], $errNo, $errStr, $this->avr['timeout']);
             if (!$this->connector) {
                 if($this->__retry_counter++ < static::MAX_RETRY) {
-//                    echo Output::put(sprintf('Cannot connect to worker module on %s:%s.', $this->avr['host'], $this->avr['port']), Output::F_RED) . PHP_EOL;
-//                    echo Output::put(sprintf('%s (%s)', $errStr, $errNo), Output::F_RED) . PHP_EOL;
-//                    echo Output::put('Retrying after 10 seconds..', Output::F_CYAN) . PHP_EOL;
+                    $this->addLightsLog(
+                        LogEvents::AVR_ERROR,
+                        sprintf('Cannot connect to AVR module on %s:%s.'.PHP_EOL.'Retrying after 10 seconds..', $this->avr['host'], $this->avr['port'])
+                    );
                     sleep(10);
                     return $this->reopenConnection();
                 }
-//                echo Output::put(sprintf('Cannot connect to worker module on %s:%s.', $this->avr['host'], $this->avr['port']), Output::F_RED) . PHP_EOL;
-//                echo Output::put(sprintf('%s (%s)', $errStr, $errNo), Output::F_RED) . PHP_EOL;
-                exit;
+
+                $this->addLightsLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $errNo));
+                throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->avr['host'], $this->avr['port']));
             }
 
-//            echo Output::put(sprintf('Open connection to worker module on %s:%s', $this->avr['host'], $this->avr['port']), Output::F_CYAN).PHP_EOL;
+            $this->addLightsLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->avr['host'], $this->avr['port']));
             $this->__last_connection = time();
         }
         return null;
@@ -142,5 +156,21 @@ class Lights
             if($bit) $convertedByte += $weight[$i];
         }
         return $convertedByte;
+    }
+
+    /**
+     * @param $logEvent
+     * @param $message
+     */
+    private function addLightsLog($logEvent, $message)
+    {
+        $log = new LogEntity();
+        $log->createdTime = new \DateTime();
+        $log->initiator = __CLASS__.': '.__LINE__;
+        $log->name = $logEvent;
+        $log->data = [
+            'message' => $message
+        ];
+        $this->database->addLog($log);
     }
 }
