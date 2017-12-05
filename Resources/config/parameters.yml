@@ -1,0 +1,9 @@
+parameters:
+  bind_host: 0.0.0.0
+  bind_port: 11221
+
+  avr_host: 127.0.0.1
+  avr_port: 11222
+  avr_timeout: 180
+
+  sqlite: '../christmas.sqlite'
