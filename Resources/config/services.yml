@@ -30,7 +30,7 @@ services:
 
   lights_inmemory:
     class: '\Syntax\WebSocket\InMemory\Lights'
-    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%']
+    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@database']
 
   # Common
   database:

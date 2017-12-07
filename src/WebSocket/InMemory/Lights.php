@@ -48,12 +48,15 @@ class Lights
      * @param string $avrHost
      * @param int $avrPort
      * @param int $avrTimeout
+     * @param Database $database
+     * @throws AVRException
      */
-    public function __construct($avrHost, $avrPort, $avrTimeout)
+    public function __construct($avrHost, $avrPort, $avrTimeout, Database $database)
     {
         $this->avr['host'] = $avrHost;
         $this->avr['port'] = $avrPort;
         $this->avr['timeout'] = $avrTimeout;
+        $this->database = $database;
 
         $this->reopenConnection();
     }
