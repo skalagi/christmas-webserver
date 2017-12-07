@@ -15,8 +15,8 @@ abstract class AbstractTransportJSON
      */
     public function __construct(array $fields = [])
     {
-        if($fields) {
-            $this->fields = array_merge($fields, $this->fields);
+        foreach($fields as $key => $value) {
+            $this->fields[$key] = $value;
         }
     }
 
