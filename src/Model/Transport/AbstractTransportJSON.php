@@ -59,15 +59,10 @@ abstract class AbstractTransportJSON
     }
 
     /**
-     * @param string $status
-     * @return AbstractTransportJSON
+     * @return array
      */
-    public function createResponse($status)
+    public function getFields()
     {
-        $className = static::class;
-        $clone = new $className(array_merge($this->fields, [
-            'controllerResponse' => $status
-        ]));
-        return $clone;
+        return $this->fields;
     }
 }

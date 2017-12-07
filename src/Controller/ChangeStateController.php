@@ -65,7 +65,7 @@ class ChangeStateController implements ControllerInterface
     /**
      * @param ChangeState $input
      * @param ConnectionInterface $from
-     * @return ChangeState
+     * @return array
      * @throws ChangeStateException
      */
     public function execute($input,  ConnectionInterface &$from)
@@ -104,10 +104,14 @@ class ChangeStateController implements ControllerInterface
                 $this->busy = false;
             });
 
-            return $input->createResponse('OK');
+            return array_merge($input->getFields(), [
+                'controllerResponse' => 'OK'
+            ]);
         } catch(AVRException $e) {
             $this->responseAVRError($from, $e->getMessage());
-            return $input->createResponse('ERR!');
+            return array_merge($input->getFields(), [
+                'controllerResponse' => 'ERR'
+            ]);
         }
     }
 

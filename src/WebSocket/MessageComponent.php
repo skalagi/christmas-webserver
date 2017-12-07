@@ -74,7 +74,7 @@ class MessageComponent implements MessageComponentInterface
                 $this->controllers->prepareInput($input),
                 $from
             );
-            $from->send($response->_toJSON());
+            $from->send(json_encode($response));
         } catch(\Exception $e) {
             $from->send(json_encode([
                 'error' => new Error([
