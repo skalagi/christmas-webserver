@@ -6,7 +6,6 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Syntax\Exception\WSException;
 use Syntax\Model\Transport\Error;
-use Syntax\Service\ControllersDispatcher;
 use Syntax\Service\Stats;
 use Syntax\Service\Database;
 use Syntax\WebSocket\InMemory\Clients;
