@@ -104,13 +104,15 @@ class ChangeStateController implements ControllerInterface
                 $this->busy = false;
             });
 
-            return array_merge($input->getFields(), [
-                'controllerResponse' => 'OK'
+            return array_merge(['value' => $input->getFields()], [
+                'controllerResponse' => 'OK',
+                'controller' => 'ChangeState'
             ]);
         } catch(AVRException $e) {
             $this->responseAVRError($from, $e->getMessage());
-            return array_merge($input->getFields(), [
-                'controllerResponse' => 'ERR'
+            return array_merge(['value' => $input->getFields()], [
+                'controllerResponse' => 'ERR',
+                'controller' => 'ChangeState'
             ]);
         }
     }
