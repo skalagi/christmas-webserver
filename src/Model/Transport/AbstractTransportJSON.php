@@ -65,7 +65,7 @@ abstract class AbstractTransportJSON
     public function createResponse($status)
     {
         $className = static::class;
-        $clone = new $className(array_merge($this->fields, [
+        $clone = new $className(array_merge(['value' => $this->fields], [
             'controllerResponse' => $status
         ]));
         return $clone;
