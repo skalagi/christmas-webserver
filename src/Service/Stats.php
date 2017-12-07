@@ -48,7 +48,6 @@ class Stats
     public function addCurrentOnline()
     {
         $this->model->currentOnline = ++$this->currentOnline;
-        $this->_sendStats();
     }
 
     /**
@@ -57,7 +56,6 @@ class Stats
     public function removeCurrentOnline()
     {
         $this->model->currentOnline = --$this->currentOnline;
-        $this->_sendStats();
     }
 
     /**
@@ -145,7 +143,7 @@ class Stats
      */
     public function _sendStats()
     {
-        foreach($this->clients as $client) {
+        foreach($this->clients->_all() as $client) {
             $client->send(json_encode([
                 'action' => 'UpdateStats',
                 'value' => json_decode($this->model->_toJSON())

@@ -35,12 +35,11 @@ class Clients implements \Iterator
     }
 
     /**
-     * @return ConnectionInterface
+     * @inheritdoc
      */
     public function next()
     {
         $this->index++;
-        return isset($this->array[$this->index]) ? $this->array[$this->index] : null;
     }
 
     /**
