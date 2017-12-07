@@ -12,7 +12,7 @@ class Lights
     /**
      * @var array|bool[]
      */
-    private $storage = [];
+    private $storage = [false, false, false, false];
 
     /**
      * @var resource
@@ -51,7 +51,6 @@ class Lights
      */
     public function __construct($avrHost, $avrPort, $avrTimeout)
     {
-        for($i=0; $i<self::LIGHTS_STORAGE_SIZE; $i++) $this->storage[] = false;
         $this->avr['host'] = $avrHost;
         $this->avr['port'] = $avrPort;
         $this->avr['timeout'] = $avrTimeout;

@@ -22,7 +22,7 @@ services:
     arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher']
 
   controllers_dispatcher:
-    class: '\Syntax\Service\ControllersDispatcher'
+    class: '\Syntax\WebSocket\ControllersDispatcher'
 
   # IN-Memory
   clients_inmemory:
