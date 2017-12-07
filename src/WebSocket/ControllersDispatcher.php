@@ -1,12 +1,11 @@
 <?php
 
-namespace Syntax\Service;
+namespace Syntax\WebSocket;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Syntax\ChristmasContainer;
 use Syntax\Exception\ControllersDispatcherException;
 use Syntax\Model\Transport\AbstractTransportJSON;
-use Syntax\WebSocket\ControllerInterface;
 
 class ControllersDispatcher
 {
