@@ -8,6 +8,7 @@ use Syntax\Exception\WSException;
 use Syntax\Model\Transport\Error;
 use Syntax\Service\Stats;
 use Syntax\Service\Database;
+use Syntax\Service\WebSocket\ChangeStateStartMessage;
 use Syntax\WebSocket\InMemory\Clients;
 
 
@@ -34,18 +35,31 @@ class MessageComponent implements MessageComponentInterface
     private $controllers;
 
     /**
+     * @var ChangeStateStartMessage
+     */
+    private $changeStateStartMessage;
+
+    /**
      * MessageComponent constructor.
      * @param Clients $clients
      * @param Stats $stats
      * @param Database $database
      * @param ControllersDispatcher $dispatcher
+     * @param ChangeStateStartMessage $changeStateStartMessage
      */
-    public function __construct(Clients $clients, Stats $stats, Database $database, ControllersDispatcher $dispatcher)
+    public function __construct(
+        Clients $clients,
+        Stats $stats,
+        Database $database,
+        ControllersDispatcher $dispatcher,
+        ChangeStateStartMessage $changeStateStartMessage
+    )
     {
         $this->clients = $clients;
         $this->database = $database;
         $this->stats = $stats;
         $this->controllers = $dispatcher;
+        $this->changeStateStartMessage = $changeStateStartMessage;
     }
 
     /**
@@ -59,6 +73,7 @@ class MessageComponent implements MessageComponentInterface
         $this->clients->_add($conn);
 
         $this->stats->_sendStats();
+        $this->changeStateStartMessage->sendCurrentStates($conn);
     }
 
     /**
