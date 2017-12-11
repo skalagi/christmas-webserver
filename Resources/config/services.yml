@@ -24,13 +24,18 @@ services:
   controllers_dispatcher:
     class: '\Syntax\WebSocket\ControllersDispatcher'
 
+  # AVR module
+  avr:
+    class: '\Syntax\Service\WebSocket\AVRService'
+    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@database']
+
   # IN-Memory
   clients_inmemory:
     class: '\Syntax\WebSocket\InMemory\Clients'
 
   lights_inmemory:
     class: '\Syntax\WebSocket\InMemory\Lights'
-    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@database']
+    arguments: ['@avr']
 
   # Common
   database:
