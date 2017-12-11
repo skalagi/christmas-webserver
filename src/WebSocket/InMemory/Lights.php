@@ -66,12 +66,12 @@ class Lights
      */
     private function reopenConnection()
     {
-        if($this->connector) {
-            fclose($this->connector);
-        }
-
         if(!$this->__last_connection || time()-$this->__last_connection > static::CONNECTION_EXPIRE_SECONDS) {
-            $this->connector = @fsockopen($this->avr['host'], $this->avr['port'], $errNo, $errStr, $this->avr['timeout']);
+            if($this->connector) {
+                fclose($this->connector);
+            }
+
+            $this->connector = @stream_socket_client('tcp://'.$this->avr['host'].':'.$this->avr['port'], $err, $errStr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
             if (!$this->connector) {
                 if($this->__retry_counter++ < static::MAX_RETRY) {
                     $this->addLightsLog(
@@ -82,7 +82,7 @@ class Lights
                     return $this->reopenConnection();
                 }
 
-                $this->addLightsLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $errNo));
+                $this->addLightsLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $err));
                 throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->avr['host'], $this->avr['port']));
             }
 
