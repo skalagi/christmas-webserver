@@ -120,7 +120,7 @@ class Lights
         $this->reopenConnection();
 
         $this->storage[$offset] = (bool)$value;
-        fwrite($this->connector, $this->toByte());
+        fwrite($this->connector, 'P'.$this->toByte());
         return $this;
     }
 
@@ -134,7 +134,7 @@ class Lights
         foreach(str_split(sprintf('%04d', decbin($byte))) as $bit) {
             $this->storage[$i++] = (bool)$bit;
         }
-        fwrite($this->connector, $this->toByte());
+        fwrite($this->connector, 'P'.$this->toByte());
         return $this;
     }
 
