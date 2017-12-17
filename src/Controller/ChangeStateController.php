@@ -125,7 +125,7 @@ class ChangeStateController implements ControllerInterface
     {
         $lastBusyTimeLimiter = new \DateTime();
         $lastBusyTimeLimiter->modify('-'.static::BUSY_LIMIT_PER_USER.' seconds');
-        $lastBusy = count($this->database->selectQuery('WHERE `data` LIKE "%'.$resourceId.'%" AND `created` > "'.$lastBusyTimeLimiter->format('Y-m-d H:i:s').'" AND `name` = "'.LogEvents::BUSY_ERROR.'"'));
+        $lastBusy = count($this->database->selectQuery('WHERE `data` LIKE "%'.$resourceId.'%" AND `created_time` > "'.$lastBusyTimeLimiter->format('Y-m-d H:i:s').'" AND `name` = "'.LogEvents::BUSY_ERROR.'"'));
         if($lastBusy > static::BUSY_LIMIT_PER_USER+((int)static::BUSY_LIMIT_PER_USER/4)) {
             return true;
         }

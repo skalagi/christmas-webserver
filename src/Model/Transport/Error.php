@@ -19,6 +19,7 @@ class Error extends AbstractTransportJSON
     {
         $this->fields['reason'] = null;
         $this->fields['type'] = null;
+        $this->mainKeyName = 'error';
 
         parent::__construct($fields);
     }

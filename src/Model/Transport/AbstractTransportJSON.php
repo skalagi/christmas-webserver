@@ -10,6 +10,11 @@ abstract class AbstractTransportJSON
     protected $fields = [];
 
     /**
+     * @var null
+     */
+    public $mainKeyName = null;
+
+    /**
      * AbstractTransportJSON constructor.
      * @param array $fields
      */
@@ -25,7 +30,12 @@ abstract class AbstractTransportJSON
      */
     public function _toJSON()
     {
-        return json_encode($this->fields);
+        $fields = $this->fields;
+
+        if($this->mainKeyName) {
+            $fields[$this->mainKeyName] = $this->fields;
+        }
+        return json_encode($fields);
     }
 
     /**

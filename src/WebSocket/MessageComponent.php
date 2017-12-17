@@ -91,14 +91,12 @@ class MessageComponent implements MessageComponentInterface
             );
             $from->send(json_encode($response));
         } catch(\Exception $e) {
-            $from->send(json_encode([
-                'error' => new Error([
+            $from->send(
+                (new Error([
                     'reason' => $e->getMessage(),
                     'type' => get_class($e)
-                ])
-            ]));
-
-            $this->onError($from, $e);
+                ]))->_toJSON()
+            );
 
             if($e instanceof WSException && $e->closeConnection) {
                 $from->close();
