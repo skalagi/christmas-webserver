@@ -44,8 +44,6 @@ class Lights
      */
     public function changeState($offset, $value)
     {
-        $this->avr->reopenConnection();
-
         $this->storage[$offset] = (bool)$value;
         $this->avr->send('P'.$this->toByte());
         return $this;

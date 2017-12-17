@@ -19,7 +19,7 @@ services:
 
   message_component:
     class: '\Syntax\WebSocket\MessageComponent'
-    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states']
+    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states', '@avr']
 
   controllers_dispatcher:
     class: '\Syntax\WebSocket\ControllersDispatcher'

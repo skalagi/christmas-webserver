@@ -8,6 +8,7 @@ use Syntax\Exception\WSException;
 use Syntax\Model\Transport\Error;
 use Syntax\Service\Stats;
 use Syntax\Service\Database;
+use Syntax\Service\WebSocket\AVRService;
 use Syntax\Service\WebSocket\ChangeStateStartMessage;
 use Syntax\WebSocket\InMemory\Clients;
 
@@ -40,19 +41,32 @@ class MessageComponent implements MessageComponentInterface
     private $changeStateStartMessage;
 
     /**
+     * @var AVRService
+     */
+    private $avr;
+
+    /**
+     * @var int
+     */
+    private $_messages_iterator = -1;
+    const REOPEN_CONNECTION_TO_AVR = 10;
+
+    /**
      * MessageComponent constructor.
      * @param Clients $clients
      * @param Stats $stats
      * @param Database $database
      * @param ControllersDispatcher $dispatcher
      * @param ChangeStateStartMessage $changeStateStartMessage
+     * @param AVRService $avr
      */
     public function __construct(
         Clients $clients,
         Stats $stats,
         Database $database,
         ControllersDispatcher $dispatcher,
-        ChangeStateStartMessage $changeStateStartMessage
+        ChangeStateStartMessage $changeStateStartMessage,
+        AVRService $avr
     )
     {
         $this->clients = $clients;
@@ -60,6 +74,7 @@ class MessageComponent implements MessageComponentInterface
         $this->stats = $stats;
         $this->controllers = $dispatcher;
         $this->changeStateStartMessage = $changeStateStartMessage;
+        $this->avr = $avr;
     }
 
     /**
@@ -83,6 +98,7 @@ class MessageComponent implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         try {
+            $this->_reopenAVRConnectionIfNeeded();
             $input = json_decode($msg, JSON_OBJECT_AS_ARRAY);
             $controller = $this->controllers->findController($input);
             $response = $controller->execute(
@@ -120,5 +136,17 @@ class MessageComponent implements MessageComponentInterface
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
         $this->stats->addMCError($e->getTrace(), $e->getMessage());
+    }
+
+    /**
+     * @throws \Syntax\Exception\AVRException
+     */
+    private function _reopenAVRConnectionIfNeeded()
+    {
+        if($this->_messages_iterator > self::REOPEN_CONNECTION_TO_AVR || $this->_messages_iterator < 0) {
+            $this->avr->reopenConnection();
+            $this->_messages_iterator = 0;
+        }
+        $this->_messages_iterator++;
     }
 }

@@ -14,9 +14,13 @@ switch($_GET['ctrl']) {
 
     case 'getEndpoint':
         header('Content-Type: application/json');
+        $endPoint = $container->getParameter(
+            preg_match('/192\.168/', $_SERVER['REMOTE_ADDR']) ? 'local_ws_endpoint' : 'external_ws_endpoint'
+        );
+        $protocol = empty($_SERVER['HTTPS']) ? 'ws://' : 'wss://';
+
         echo json_encode([
-            'endpoint' => preg_match('/192\.168/', $_SERVER['REMOTE_ADDR']) ?
-                $container->getParameter('local_ws_endpoint') : $container->getParameter('external_ws_endpoint')
+            'endpoint' => $protocol.$endPoint
         ]);
         break;
 }

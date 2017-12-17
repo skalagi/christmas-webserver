@@ -8,5 +8,5 @@ parameters:
 
   sqlite: '../../christmas.sqlite'
 
-  local_ws_endpoint: 'ws://192.168.1.101:11221'
-  external_ws_endpoint: 'ws://api.lights.host/websocket'
+  local_ws_endpoint: '192.168.1.101:11221'
+  external_ws_endpoint: 'api.lights.host/websocket'
