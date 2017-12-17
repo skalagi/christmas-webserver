@@ -31,12 +31,10 @@ class SocketFactory
     /**
      * @param LoopInterface $loop
      * @return Socket
-     * @throws \React\Socket\ConnectionException
      */
     public function createSocket(LoopInterface $loop)
     {
-        $sock = new Socket($loop);
-        $sock->listen($this->port, $this->host);
+        $sock = new Socket($this->host.':'.$this->port, $loop);
 
         return $sock;
     }

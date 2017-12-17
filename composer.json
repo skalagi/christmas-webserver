@@ -1,11 +1,10 @@
 {
     "require": {
-        "cboden/ratchet": "^0.3.5",
+        "cboden/ratchet": "dev-master",
         "clue/stdio-react": "^0.4.0",
         "symfony/dependency-injection": "^3.4",
         "symfony/yaml": "^3.4",
-        "symfony/config": "^3.4",
-        "symfony/event-dispatcher": "^3.4"
+        "symfony/config": "^3.4"
     },
     "autoload": {
         "psr-4": {
