@@ -45,7 +45,7 @@ class Lights
     public function changeState($offset, $value)
     {
         $this->storage[$offset] = (bool)$value;
-        $this->avr->send('P'.$this->toByte());
+        $this->avr->send('P.'.$this->toByte());
         return $this;
     }
 
@@ -59,7 +59,7 @@ class Lights
         foreach(str_split(sprintf('%04d', decbin($byte))) as $bit) {
             $this->storage[$i++] = (bool)$bit;
         }
-        $this->avr->send('P'.$this->toByte());
+        $this->avr->send('P.'.$this->toByte());
         return $this;
     }
 

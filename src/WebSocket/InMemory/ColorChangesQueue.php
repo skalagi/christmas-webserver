@@ -87,7 +87,7 @@ class ColorChangesQueue
 
         if($nextChange instanceof ColorChange) {
             $duration = $nextChange->duration ? $nextChange->duration : $duration;
-            $this->avr->send('L'.$nextChange->hex);
+            $this->avr->send('L.'.$nextChange->hex);
 
             $this->clients->broadcastMessage(new ChangeColorBroadcast([
                 'value' => [
