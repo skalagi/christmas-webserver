@@ -4,6 +4,7 @@ namespace Syntax\WebSocket;
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use Syntax\Admin\Input;
 use Syntax\Exception\WSException;
 use Syntax\Model\Transport\Error;
 use Syntax\Service\LogDisplayer;
@@ -72,6 +73,7 @@ class MessageComponent implements MessageComponentInterface
      * @param AVRService $avr
      * @param ColorChangesQueue $queue
      * @param LogDisplayer $logDisplayer
+     * @param Input $adminInput
      */
     public function __construct(
         Clients $clients,
@@ -82,7 +84,8 @@ class MessageComponent implements MessageComponentInterface
         ChangeColorStartMessage $changeColorStartMessage,
         AVRService $avr,
         ColorChangesQueue $queue,
-        LogDisplayer $logDisplayer
+        LogDisplayer $logDisplayer,
+        Input $adminInput
     )
     {
         $this->clients = $clients;
@@ -101,6 +104,9 @@ class MessageComponent implements MessageComponentInterface
         $logDisplayer->startDisplaying(
             $this->database->selectQuery('ORDER BY `created_time` DESC LIMIT '.self::LOGS_LIMIT)
         );
+
+        // init admin input
+        $adminInput->init();
     }
 
     /**

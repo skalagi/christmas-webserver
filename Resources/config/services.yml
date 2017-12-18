@@ -19,7 +19,7 @@ services:
 
   message_component:
     class: '\Syntax\WebSocket\MessageComponent'
-    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states', '@start_message_colors', '@avr', '@colors_inmemory', '@log_displayer']
+    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states', '@start_message_colors', '@avr', '@colors_inmemory', '@log_displayer', '@input']
 
   controllers_dispatcher:
     class: '\Syntax\WebSocket\ControllersDispatcher'
@@ -74,3 +74,12 @@ services:
   log_displayer:
     class: '\Syntax\Service\LogDisplayer'
     arguments: ['@stdout']
+
+  input:
+    class: '\Syntax\Admin\Input'
+    arguments: ['@loop', '@stdout']
+
+  # Admin commands
+  shutdownCommand:
+    class: '\Syntax\Admin\Commands\Shutdown'
+    arguments: ['@clients_inmemory']
