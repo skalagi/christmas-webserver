@@ -13,4 +13,4 @@ parameters:
   local_ws_endpoint: '192.168.1.101:11221'
   external_ws_endpoint: 'api.lights.host/websocket'
 
-  stream: ''
+  stream: '1I_XcCC9CiE?autoplay=1'
