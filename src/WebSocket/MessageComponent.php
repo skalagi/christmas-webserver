@@ -116,7 +116,7 @@ class MessageComponent implements MessageComponentInterface
     {
         $this->stats->addCurrentOnline();
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->stats->addOpenConnection($conn->resourceId, $conn->remoteAddress);
+        $this->stats->addOpenConnection($conn->resourceId, $conn->httpRequest->getHeader('X-Forwarded-For')[0]);
         $this->clients->_add($conn);
 
         $this->stats->_sendStats();
@@ -160,7 +160,7 @@ class MessageComponent implements MessageComponentInterface
         $this->clients->_remove($conn);
         $this->stats->removeCurrentOnline();
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->stats->addCloseConnection($conn->resourceId, $conn->remoteAddress);
+        $this->stats->addCloseConnection($conn->resourceId, $conn->httpRequest->getHeader('X-Forwarded-For')[0]);
         $this->stats->_sendStats();
     }
 
