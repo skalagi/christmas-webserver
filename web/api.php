@@ -23,4 +23,11 @@ switch($_GET['ctrl']) {
             'endpoint' => $protocol.$endPoint
         ]);
         break;
+
+    case 'getStream':
+        echo json_encode([
+            'type' => 'yt',
+            'value' => $container->getParameter('stream')
+        ]);
+        break;
 }
