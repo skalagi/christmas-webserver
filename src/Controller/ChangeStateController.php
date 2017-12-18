@@ -98,7 +98,7 @@ class ChangeStateController implements ControllerInterface
             ]), $from);
 
             /** @noinspection PhpUndefinedFieldInspection */
-            $this->logChangeState((int)$from->resourceId, $from->remoteAddress, $input->identity, $input->state);
+            $this->logChangeState((int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For'), $input->identity, $input->state);
 
             $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
                 $this->busy = false;
