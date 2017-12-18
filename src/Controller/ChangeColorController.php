@@ -53,7 +53,7 @@ class ChangeColorController implements ControllerInterface
             $changes[] = $this->createAppChangeColorFromTransport(
                 $change,
                 (int)$from->resourceId,
-                $from->httpRequest->getHeader('X-Forwarded-For')
+                $from->httpRequest->getHeader('X-Forwarded-For')[0]
             );
 
         }
@@ -66,7 +66,7 @@ class ChangeColorController implements ControllerInterface
         foreach($changes as $change) {
             $this->queue->addChange($change);
             /** @noinspection PhpUndefinedFieldInspection */
-            $this->logColorChange($change->hex, $change->duration, (int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For'));
+            $this->logColorChange($change->hex, $change->duration, (int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0]);
         }
     }
 
