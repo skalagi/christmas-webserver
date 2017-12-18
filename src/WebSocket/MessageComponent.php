@@ -11,6 +11,7 @@ use Syntax\Service\Database;
 use Syntax\Service\WebSocket\AVRService;
 use Syntax\Service\WebSocket\ChangeStateStartMessage;
 use Syntax\WebSocket\InMemory\Clients;
+use Syntax\WebSocket\InMemory\ColorChangesQueue;
 
 
 class MessageComponent implements MessageComponentInterface
@@ -59,6 +60,7 @@ class MessageComponent implements MessageComponentInterface
      * @param ControllersDispatcher $dispatcher
      * @param ChangeStateStartMessage $changeStateStartMessage
      * @param AVRService $avr
+     * @param ColorChangesQueue $queue
      */
     public function __construct(
         Clients $clients,
@@ -66,7 +68,8 @@ class MessageComponent implements MessageComponentInterface
         Database $database,
         ControllersDispatcher $dispatcher,
         ChangeStateStartMessage $changeStateStartMessage,
-        AVRService $avr
+        AVRService $avr,
+        ColorChangesQueue $queue
     )
     {
         $this->clients = $clients;
@@ -75,6 +78,9 @@ class MessageComponent implements MessageComponentInterface
         $this->controllers = $dispatcher;
         $this->changeStateStartMessage = $changeStateStartMessage;
         $this->avr = $avr;
+
+        // init color changes queue
+        $queue->queueLoopCall();
     }
 
     /**
@@ -105,7 +111,9 @@ class MessageComponent implements MessageComponentInterface
                 $this->controllers->prepareInput($input),
                 $from
             );
-            $from->send(json_encode($response));
+            if($response) {
+                $from->send(json_encode($response));
+            }
         } catch(\Exception $e) {
             $from->send(
                 (new Error([

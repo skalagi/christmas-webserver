@@ -10,7 +10,7 @@ interface ControllerInterface
     /**
      * @param AbstractTransportJSON $input
      * @param ConnectionInterface $from
-     * @return AbstractTransportJSON
+     * @return array
      */
     public function execute($input, ConnectionInterface &$from);
 }

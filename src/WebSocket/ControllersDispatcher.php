@@ -26,11 +26,11 @@ class ControllersDispatcher
     }
 
     /**
-     * @param array $input
+     * @param array|mixed $input
      * @return ControllerInterface
      * @throws ControllersDispatcherException
      */
-    public function findController(array $input)
+    public function findController($input)
     {
         $this->_validateInput($input);
 
@@ -46,11 +46,15 @@ class ControllersDispatcher
     }
 
     /**
-     * @param array $input
+     * @param array|mixed $input
      * @throws ControllersDispatcherException
      */
-    private function _validateInput(array $input)
+    private function _validateInput($input)
     {
+        if(!is_array($input)) {
+            throw new ControllersDispatcherException('Invalid JSON as input');
+        }
+
         if(!isset($input['controller'])) {
             throw new ControllersDispatcherException('Missing "controller" field');
         }

@@ -5,7 +5,7 @@ namespace Syntax\Service\WebSocket;
 
 use Ratchet\ConnectionInterface;
 use Syntax\WebSocket\InMemory\Lights;
-use Syntax\Model\Transport\ChangeStateBroadcast;
+use Syntax\Model\Transport\Broadcast\ChangeStateBroadcast;
 
 class ChangeStateStartMessage
 {

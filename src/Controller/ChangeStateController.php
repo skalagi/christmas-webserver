@@ -8,7 +8,7 @@ use Syntax\Exception\AVRException;
 use Syntax\Exception\ChangeStateException;
 use Syntax\Model\Application\LogEntity;
 use Syntax\Model\Application\LogEvents;
-use Syntax\Model\Transport\ChangeStateBroadcast;
+use Syntax\Model\Transport\Broadcast\ChangeStateBroadcast;
 use Syntax\Model\Transport\ControllerInput\ChangeState;
 use Syntax\Model\Transport\Error;
 use Syntax\Service\Database;

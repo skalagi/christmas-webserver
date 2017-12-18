@@ -3,19 +3,20 @@
 namespace Syntax\Model\Transport;
 
 /**
- * Class ChangeStateBroadcast
- * @property $input public
+ * Class ColorChange
+ * @property $hex public
+ * @property $duration public
  * @package Syntax\Model\Transport
  */
-class ChangeStateBroadcast extends AbstractTransportJSON
+class ColorChange extends AbstractTransportJSON
 {
     /**
      * @inheritdoc
      */
     public function __construct(array $fields = [])
     {
-        $this->fields['action'] = 'ChangeState';
-        $this->fields['value'] = null;
+        $this->fields['hex'] = null;
+        $this->fields['duration'] = null;
 
         parent::__construct($fields);
     }

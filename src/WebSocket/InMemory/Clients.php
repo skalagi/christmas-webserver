@@ -125,12 +125,12 @@ class Clients implements \Iterator
 
     /**
      * @param $msg
-     * @param ConnectionInterface $connectionInvoker
+     * @param ConnectionInterface|null $connectionInvoker
      */
-    public function broadcastMessage($msg, ConnectionInterface $connectionInvoker)
+    public function broadcastMessage($msg, ConnectionInterface $connectionInvoker = null)
     {
         foreach($this->array as $connection) {
-            if($connection == $connectionInvoker) continue;
+            if($connection == $connectionInvoker && $connection) continue;
             $connection->send($msg instanceof AbstractTransportJSON ? $msg->_toJson() : $msg);
         }
     }

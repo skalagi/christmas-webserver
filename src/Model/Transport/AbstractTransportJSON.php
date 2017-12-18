@@ -30,11 +30,12 @@ abstract class AbstractTransportJSON
      */
     public function _toJSON()
     {
-        $fields = $this->fields;
-
         if($this->mainKeyName) {
             $fields[$this->mainKeyName] = $this->fields;
+        } else {
+            $fields = $this->fields;
         }
+
         return json_encode($fields);
     }
 

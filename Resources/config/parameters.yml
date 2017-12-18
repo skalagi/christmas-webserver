@@ -6,6 +6,8 @@ parameters:
   avr_port: 11222
   avr_timeout: 180
 
+  colors_changes_queue_default_duration: 2
+
   sqlite: '../../christmas.sqlite'
 
   local_ws_endpoint: '192.168.1.101:11221'
