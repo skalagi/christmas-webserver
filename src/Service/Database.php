@@ -12,13 +12,21 @@ class Database
     private $connection;
 
     /**
+     * @var LogDisplayer
+     */
+    private $displayer;
+
+    /**
      * Database constructor.
+     * @param LogDisplayer $displayer
      * @param $pathToDatabase
      */
-    public function __construct($pathToDatabase)
+    public function __construct(LogDisplayer $displayer, $pathToDatabase)
     {
         $this->connection = new \PDO('sqlite:'.__DIR__.DIRECTORY_SEPARATOR.$pathToDatabase);
         $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        $this->displayer = $displayer;
     }
 
     /**
@@ -27,6 +35,8 @@ class Database
      */
     public function addLog(LogEntity $log)
     {
+        $this->displayer->renderLog($log);
+
         return $this->connection->query(sprintf('INSERT INTO `syslog`(`name`, `created_time`, `initiator`, `data`)
            VALUES("%s", "%s", "%s", \'%s\')
         ',
@@ -74,7 +84,7 @@ class Database
             $log->name = $row['name'];
             $log->createdTime = new \DateTime($row['created_time']);
             $log->initiator = $row['initiator'];
-            $log->data = json_decode($row['data']);
+            $log->data = (array)json_decode($row['data'], JSON_OBJECT_AS_ARRAY);
             $logs[] = $log;
         }
         return $logs;

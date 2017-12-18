@@ -6,6 +6,7 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Syntax\Exception\WSException;
 use Syntax\Model\Transport\Error;
+use Syntax\Service\LogDisplayer;
 use Syntax\Service\Stats;
 use Syntax\Service\Database;
 use Syntax\Service\WebSocket\AVRService;
@@ -58,6 +59,8 @@ class MessageComponent implements MessageComponentInterface
     private $_messages_iterator = -1;
     const REOPEN_CONNECTION_TO_AVR = 10;
 
+    const LOGS_LIMIT = 50;
+
     /**
      * MessageComponent constructor.
      * @param Clients $clients
@@ -68,6 +71,7 @@ class MessageComponent implements MessageComponentInterface
      * @param ChangeColorStartMessage $changeColorStartMessage
      * @param AVRService $avr
      * @param ColorChangesQueue $queue
+     * @param LogDisplayer $logDisplayer
      */
     public function __construct(
         Clients $clients,
@@ -77,7 +81,8 @@ class MessageComponent implements MessageComponentInterface
         ChangeStateStartMessage $changeStateStartMessage,
         ChangeColorStartMessage $changeColorStartMessage,
         AVRService $avr,
-        ColorChangesQueue $queue
+        ColorChangesQueue $queue,
+        LogDisplayer $logDisplayer
     )
     {
         $this->clients = $clients;
@@ -91,6 +96,11 @@ class MessageComponent implements MessageComponentInterface
 
         // init color changes queue
         $queue->queueLoopCall();
+
+        // init log displayer
+        $logDisplayer->startDisplaying(
+            $this->database->selectQuery('ORDER BY `created_time` DESC LIMIT '.self::LOGS_LIMIT)
+        );
     }
 
     /**

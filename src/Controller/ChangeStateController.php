@@ -98,7 +98,7 @@ class ChangeStateController implements ControllerInterface
             ]), $from);
 
             /** @noinspection PhpUndefinedFieldInspection */
-            $this->logChangeState((int)$from->resourceId, $from->remoteAddress);
+            $this->logChangeState((int)$from->resourceId, $from->remoteAddress, $input->identity, $input->state);
 
             $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
                 $this->busy = false;
@@ -161,8 +161,10 @@ class ChangeStateController implements ControllerInterface
     /**
      * @param int $resourceId
      * @param string $ipAddress
+     * @param int $channel
+     * @param bool $state
      */
-    private function logChangeState($resourceId, $ipAddress)
+    private function logChangeState($resourceId, $ipAddress, $channel, $state)
     {
         $log = new LogEntity();
         $log->createdTime = new \DateTime();
@@ -170,6 +172,8 @@ class ChangeStateController implements ControllerInterface
         $log->name = LogEvents::CHANGE_STATE_CONTROLLER;
         $log->data['rid'] = $resourceId;
         $log->data['ip'] = $ipAddress;
+        $log->data['channel'] = $channel;
+        $log->data['state'] = $state;
         $this->database->addLog($log);
     }
 }
