@@ -25,9 +25,15 @@ switch($_GET['ctrl']) {
         break;
 
     case 'getStream':
+        header('Content-Type: application/json');
         echo json_encode([
             'type' => 'yt',
             'value' => $container->getParameter('stream')
         ]);
+        break;
+
+    case 'getChannels':
+        header('Content-Type: application/json');
+        echo json_encode(\Syntax\Model\Application\Channels::$definition);
         break;
 }
