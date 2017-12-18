@@ -9,6 +9,7 @@ use Syntax\Model\Transport\Error;
 use Syntax\Service\Stats;
 use Syntax\Service\Database;
 use Syntax\Service\WebSocket\AVRService;
+use Syntax\Service\WebSocket\ChangeColorStartMessage;
 use Syntax\Service\WebSocket\ChangeStateStartMessage;
 use Syntax\WebSocket\InMemory\Clients;
 use Syntax\WebSocket\InMemory\ColorChangesQueue;
@@ -42,6 +43,11 @@ class MessageComponent implements MessageComponentInterface
     private $changeStateStartMessage;
 
     /**
+     * @var ChangeColorStartMessage
+     */
+    private $changeColorStartMessage;
+
+    /**
      * @var AVRService
      */
     private $avr;
@@ -59,6 +65,7 @@ class MessageComponent implements MessageComponentInterface
      * @param Database $database
      * @param ControllersDispatcher $dispatcher
      * @param ChangeStateStartMessage $changeStateStartMessage
+     * @param ChangeColorStartMessage $changeColorStartMessage
      * @param AVRService $avr
      * @param ColorChangesQueue $queue
      */
@@ -68,6 +75,7 @@ class MessageComponent implements MessageComponentInterface
         Database $database,
         ControllersDispatcher $dispatcher,
         ChangeStateStartMessage $changeStateStartMessage,
+        ChangeColorStartMessage $changeColorStartMessage,
         AVRService $avr,
         ColorChangesQueue $queue
     )
@@ -75,9 +83,11 @@ class MessageComponent implements MessageComponentInterface
         $this->clients = $clients;
         $this->database = $database;
         $this->stats = $stats;
+        $this->avr = $avr;
+
         $this->controllers = $dispatcher;
         $this->changeStateStartMessage = $changeStateStartMessage;
-        $this->avr = $avr;
+        $this->changeColorStartMessage = $changeColorStartMessage;
 
         // init color changes queue
         $queue->queueLoopCall();
@@ -95,6 +105,7 @@ class MessageComponent implements MessageComponentInterface
 
         $this->stats->_sendStats();
         $this->changeStateStartMessage->sendCurrentStates($conn);
+        $this->changeColorStartMessage->sendCurrentColor($conn);
     }
 
     /**

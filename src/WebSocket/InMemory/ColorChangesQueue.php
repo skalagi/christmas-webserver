@@ -18,6 +18,11 @@ class ColorChangesQueue
     private $changes = [];
 
     /**
+     * @var null|ColorChange
+     */
+    private $lastChange;
+
+    /**
      * @var LoopInterface
      */
     private $loop;
@@ -96,6 +101,8 @@ class ColorChangesQueue
                 $nextChange->uid,
                 $nextChange->ip
             );
+
+            $this->lastChange = $nextChange;
         }
 
         $this->loop->addTimer($duration, [$this, 'queueLoopCall']);
@@ -134,5 +141,14 @@ class ColorChangesQueue
         $log->data['ip'] = $ip;
 
         $this->database->addLog($log);
+    }
+
+
+    /**
+     * @return null|ColorChange
+     */
+    public function getLastChange()
+    {
+        return $this->lastChange;
     }
 }

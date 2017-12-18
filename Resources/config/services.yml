@@ -19,7 +19,7 @@ services:
 
   message_component:
     class: '\Syntax\WebSocket\MessageComponent'
-    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states', '@avr', '@colors_inmemory']
+    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states', '@start_message_colors', '@avr', '@colors_inmemory']
 
   controllers_dispatcher:
     class: '\Syntax\WebSocket\ControllersDispatcher'
@@ -51,14 +51,18 @@ services:
     arguments: ['@database', '@clients_inmemory']
 
   # Controllers
-  ChangeState:
+  ChangeStateController:
     class: '\Syntax\Controller\ChangeStateController'
     arguments: ['@lights_inmemory', '@clients_inmemory', '@loop', '@database']
 
-  ChangeColor:
+  ChangeColorController:
       class: '\Syntax\Controller\ChangeColorController'
       arguments: ['@colors_inmemory', '@database']
 
   start_message_states:
     class: '\Syntax\Service\WebSocket\ChangeStateStartMessage'
     arguments: ['@lights_inmemory']
+
+  start_message_colors:
+    class: '\Syntax\Service\WebSocket\ChangeColorStartMessage'
+    arguments: ['@colors_inmemory']

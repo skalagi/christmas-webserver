@@ -34,7 +34,7 @@ class ControllersDispatcher
     {
         $this->_validateInput($input);
 
-        $service = $this->container->get($input['controller']);
+        $service = $this->container->get($input['controller'].'Controller');
         if(!$service instanceof ControllerInterface) {
             throw new ControllersDispatcherException(sprintf(
                 'Service "%s" is not controller',
@@ -62,7 +62,7 @@ class ControllersDispatcher
             throw new ControllersDispatcherException('Missing "value" field');
         }
 
-        if(!$this->container->has($input['controller'])) {
+        if(!$this->container->has($input['controller'].'Controller')) {
             throw new ControllersDispatcherException('Not found controller!');
         }
     }
