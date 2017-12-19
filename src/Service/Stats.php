@@ -39,7 +39,6 @@ class Stats
         $this->database = $database;
         $this->clients = $clients;
         $this->model = new UpdateStats();
-        $this->getModel();
     }
 
     /**
@@ -106,7 +105,7 @@ class Stats
     /**
      * @return UpdateStats
      */
-    public function getModel()
+    public function updateModel()
     {
         $this->model->todayChanges = count($this->database->getLogs([
             'name' => LogEvents::CHANGE_STATE_CONTROLLER,
@@ -143,6 +142,8 @@ class Stats
      */
     public function _sendStats()
     {
+        $this->updateModel();
+
         foreach($this->clients->_all() as $client) {
             $client->send(json_encode([
                 'action' => 'UpdateStats',
