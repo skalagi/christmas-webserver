@@ -59,17 +59,7 @@ class Database
         if(isset($criteria['created_time'])) $sqlWhere .= ' AND `created_time` LIKE \''.$criteria['created_time'].'\'';
         $sqlWhere = ' WHERE '.ltrim($sqlWhere, ' AND');
 
-        $logs = [];
-        foreach($this->connection->query('SELECT * FROM syslog t'.$sqlWhere) as $row) {
-            $log = new LogEntity();
-            $log->name = $row['name'];
-            $log->createdTime = new \DateTime($row['created_time']);
-            $log->initiator = $row['initiator'];
-            $log->data = json_decode($row['data']);
-            $logs[] = $log;
-        }
-
-        return $logs;
+        return $this->selectQuery($sqlWhere);
     }
 
     /**
