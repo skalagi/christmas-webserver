@@ -4,7 +4,7 @@ namespace Syntax\Model\Transport;
 
 /**
  * Class ColorChange
- * @property $hex public
+ * @property $rgb public
  * @property $duration public
  * @package Syntax\Model\Transport
  */
@@ -15,7 +15,7 @@ class ColorChange extends AbstractTransportJSON
      */
     public function __construct(array $fields = [])
     {
-        $this->fields['hex'] = null;
+        $this->fields['rgb'] = [];
         $this->fields['duration'] = null;
 
         parent::__construct($fields);
