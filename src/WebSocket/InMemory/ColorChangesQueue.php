@@ -91,12 +91,12 @@ class ColorChangesQueue
 
             $this->clients->broadcastMessage(new ChangeColorBroadcast([
                 'value' => [
-                    'hex' => $nextChange->hex
+                    'hex' => $nextChange->$nextChange->rgb[0].':'.$nextChange->rgb[1].':'.$nextChange->rgb[2]
                 ]
             ]), null);
 
             $this->logQueueExecute(
-                $nextChange->hex,
+                'R='.$nextChange->rgb[0].' G='.$nextChange->rgb[1].' B='.$nextChange->rgb[2],
                 $duration,
                 $nextChange->uid,
                 $nextChange->ip

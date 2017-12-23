@@ -12,7 +12,10 @@ class ChangeColorStartMessage
      */
     private $queue;
 
-    const INIT_DEFAULT_EMPTY_COLOR = '000000';
+    /**
+     * @var array 
+     */
+    private $_INIT_DEFAULT_EMPTY_COLOR = [0, 0, 0];
 
     /**
      * ChangeColorStartMessage constructor.
@@ -30,7 +33,7 @@ class ChangeColorStartMessage
     {
         $connection->send((new ChangeColorBroadcast([
             'value' => [
-                'hex' => $this->queue->getLastChange() ? $this->queue->getLastChange()->hex : self::INIT_DEFAULT_EMPTY_COLOR
+                'rgb' => $this->queue->getLastChange() ? $this->queue->getLastChange()->rgb : $this->_INIT_DEFAULT_EMPTY_COLOR
             ]
         ]))->_toJSON());
     }
