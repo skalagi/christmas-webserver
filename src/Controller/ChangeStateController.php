@@ -82,7 +82,7 @@ class ChangeStateController implements ControllerInterface
                 $exception = new ChangeStateException('Operations limit reached.. Client kicked!');
                 $exception->closeConnection = true;
             }
-            throw isset($exception) ? $exception : new ChangeStateException('Server is currently busy!');
+            throw isset($exception) ? $exception : new ChangeStateException('Wait a second before next change attempt!');
         }
 
         try {
