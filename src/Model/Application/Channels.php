@@ -7,19 +7,19 @@ class Channels
     public static $definition = [
         [
             'identity' => 0,
-            'label' => 'Bottom'
+            'label' => 'Red serpent'
         ],
         [
             'identity' => 1,
-            'label' => 'Left vertical'
+            'label' => 'White bottom'
         ],
         [
             'identity' => 2,
-            'label' => 'Right vertical'
+            'label' => 'Multi-color'
         ],
         [
             'identity' => 3,
-            'label' => 'Horizontal middle'
+            'label' => 'Icicles'
         ]
     ];
 }
