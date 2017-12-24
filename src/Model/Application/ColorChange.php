@@ -2,6 +2,8 @@
 
 namespace Syntax\Model\Application;
 
+use Ratchet\ConnectionInterface;
+
 class ColorChange
 {
     /**
@@ -23,4 +25,9 @@ class ColorChange
      * @var string
      */
     public $ip;
+    
+    /**
+     * @var ConnectionInterface
+     */
+    public $connection;
 }

@@ -87,7 +87,17 @@ class ColorChangesQueue
 
         if($nextChange instanceof ColorChange) {
             $duration = $nextChange->duration ? $nextChange->duration : $duration;
-            $this->avr->send('L'.$nextChange->rgb[0].'A'.$nextChange->rgb[1].'A'.$nextChange->rgb[2]);
+            try {
+                $this->avr->send('L'.$nextChange->rgb[0].'A'.$nextChange->rgb[1].'A'.$nextChange->rgb[2]);
+            } catch (\Syntax\Exception\AVRException $ex) {
+                $errTransport = new \Syntax\Model\Transport\Error();
+                $errTransport->reason = 'Colors queue fail when connecting to AVR!';
+                $errTransport->type = get_class($ex);
+                $nextChange->connection->send($errTransport->_toJSON());
+                
+                $this->addAVRLog(LogEvents::AVR_ERROR, $ex->getMessage());
+            }
+            
 
             $this->clients->broadcastMessage(new ChangeColorBroadcast([
                 'value' => [
@@ -140,6 +150,22 @@ class ColorChangesQueue
         $log->data['rid'] = $rid;
         $log->data['ip'] = $ip;
 
+        $this->database->addLog($log);
+    }
+    
+        /**
+     * @param $logEvent
+     * @param $message
+     */
+    private function addAVRLog($logEvent, $message)
+    {
+        $log = new LogEntity();
+        $log->createdTime = new \DateTime();
+        $log->initiator = __CLASS__.': '.__LINE__;
+        $log->name = $logEvent;
+        $log->data = [
+            'message' => $message
+        ];
         $this->database->addLog($log);
     }
 
