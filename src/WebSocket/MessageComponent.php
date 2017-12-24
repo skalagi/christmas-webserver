@@ -54,12 +54,6 @@ class MessageComponent implements MessageComponentInterface
      */
     private $avr;
 
-    /**
-     * @var int
-     */
-    private $_messages_iterator = -1;
-    const REOPEN_CONNECTION_TO_AVR = 10;
-
     const LOGS_LIMIT = 50;
 
     /**
@@ -131,7 +125,7 @@ class MessageComponent implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         try {
-            $this->_reopenAVRConnectionIfNeeded();
+            $this->avr->reopenConnection();
             $input = json_decode($msg, JSON_OBJECT_AS_ARRAY);
             $controller = $this->controllers->findController($input);
             $response = $controller->execute(
@@ -171,17 +165,5 @@ class MessageComponent implements MessageComponentInterface
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
         $this->stats->addMCError($e->getTrace(), $e->getMessage());
-    }
-
-    /**
-     * @throws \Syntax\Exception\AVRException
-     */
-    private function _reopenAVRConnectionIfNeeded()
-    {
-        if($this->_messages_iterator > self::REOPEN_CONNECTION_TO_AVR || $this->_messages_iterator < 0) {
-            $this->avr->reopenConnection();
-            $this->_messages_iterator = 0;
-        }
-        $this->_messages_iterator++;
     }
 }
