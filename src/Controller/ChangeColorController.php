@@ -111,7 +111,7 @@ class ChangeColorController implements ControllerInterface
         $log->name = LogEvents::CHANGE_COLOR_CONTROLLER;
         $log->createdTime = new \DateTime;
         $log->initiator = __CLASS__.':'.__LINE__;
-        $log->data['rgb'] = $rgb;
+        $log->data['rgb'] = 'R='.$rgb[0].' G='.$rgb[1].' B='.$rgb[2];
         $log->data['duration'] = $duration;
         $log->data['rid'] = $rid;
         $log->data['ip'] = $ip;
