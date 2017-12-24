@@ -45,6 +45,11 @@ class AVRService
      * @var boolean
      */
     private $__is_sending = false;
+    
+    /**
+     * @var boolean
+     */
+    private $__trying_connecting_after_failed_fwrite = false;
 
     const CONNECTION_EXPIRE_SECONDS = 180;
     const MAX_RETRY = 20;
@@ -109,7 +114,12 @@ class AVRService
         $result = @fwrite($this->tcpHandle, $message);
         $this->__is_sending = false;
         if(!$result) {
-            throw new AVRException('Cannot send message to AVR Controller!');
+            if($this->__trying_connecting_after_failed_fwrite) {
+                throw new AVRException('Cannot send message to AVR Controller!');
+            }
+            $this->reopenConnection();
+            $this->__trying_connecting_after_failed_fwrite = true;
+            $this->send($message);
         }
         return $result;
     }
