@@ -82,30 +82,27 @@ class AVRService
      */
     public function reopenConnection()
     {
-        if(!$this->__last_connection || time()-$this->__last_connection > static::CONNECTION_EXPIRE_SECONDS) {
-            if($this->tcpHandle) {
-                fclose($this->tcpHandle);
-            }
-
-            $this->tcpHandle = @stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
-            if (!$this->tcpHandle) {
-                if($this->__retry_counter++ < static::MAX_RETRY) {
-                    $this->addAVRLog(
-                        LogEvents::AVR_ERROR,
-                        sprintf('Cannot connect to AVR module on %s:%s.'.PHP_EOL.'Retrying after 10 seconds..', $this->host, $this->port)
-                    );
-                    sleep(10);
-                    return $this->reopenConnection();
-                }
-
-                $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $err));
-                throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));
-            }
-
-            $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
-            $this->__last_connection = time();
+        if($this->tcpHandle) {
+            fclose($this->tcpHandle);
         }
-        return null;
+
+        $this->tcpHandle = @stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
+        if (!$this->tcpHandle) {
+            if($this->__retry_counter++ < static::MAX_RETRY) {
+                $this->addAVRLog(
+                    LogEvents::AVR_ERROR,
+                    sprintf('Cannot connect to AVR module on %s:%s.'.PHP_EOL.'Retrying after 10 seconds..', $this->host, $this->port)
+                );
+                sleep(10);
+                return $this->reopenConnection();
+            }
+
+            $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $err));
+            throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));
+        }
+
+        $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
+        $this->__last_connection = time();
     }
 
     /**
