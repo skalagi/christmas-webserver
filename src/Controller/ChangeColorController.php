@@ -48,13 +48,16 @@ class ChangeColorController implements ControllerInterface
     {
         $changes = [];
         /** @var TransportColorChange $change */
+        $i=0;
         foreach($input->changes as $change) {
             /** @noinspection PhpUndefinedFieldInspection */
-            $changes[] = $this->createAppChangeColorFromTransport(
+            $changes[$i] = $this->createAppChangeColorFromTransport(
                 $change,
                 (int)$from->resourceId,
                 $from->httpRequest->getHeader('X-Forwarded-For')[0]
             );
+            $changes[$i]->connection = $from;
+            $i++;
 
         }
 
