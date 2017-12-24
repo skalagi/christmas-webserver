@@ -17,12 +17,20 @@ class LogEvents
     const AVR_CRITICAL = 'avr_critical';
     const BUSY_ERROR = 'busy_error';
     const MESSAGE_COMPONENT_ERROR = 'mc_error';
+    const S24_ERROR = 's24_error';
 
     # COLORS QUEUE
     const COLOR_QUEUE_EXEC = 'color_queue_exec';
 
     # AVR SUCCESS
     const AVR_CONNECTED = 'avr_connected';
+    
+    # STEROWANIE24
+    const S24_INCOMING_CONNECTED = 's24_inc_connected';
+    const S24_OUTGOING_CONNECTED = 's24_out_connected';
+    const S24_INCOMING_STATE = 's24_incoming_state';
+    const s24_OUTGOING_STATE = 's24_outgoing_state';
+    
 
     /**
      * Event name's labels
@@ -37,8 +45,13 @@ class LogEvents
         self::CHANGE_STATE_CONTROLLER => 'Zmiana stanu',
         self::AVR_CONNECTED => 'Podłączono do sterownika',
         self::AVR_ERROR => 'Błąd sterownika AVR',
-        self::BUSY_ERROR => 'Wyrzucenie klienta',
-        self::COLOR_QUEUE_EXEC => 'Wysłanie zmiany koloru do AVR'
+        self::BUSY_ERROR => 'Zajętość modułu przekaźnikowego',
+        self::S24_ERROR => 'Błąd obsługi STEROWANIE24',
+        self::COLOR_QUEUE_EXEC => 'Wysłanie zmiany koloru do AVR',
+        self::S24_INCOMING_CONNECTED => 'Podłączono klienta odbiorcu STEROWANIE24',
+        self::S24_OUTGOING_CONNECTED => 'Podłączono klienta nadawania STEROWANIE24',
+        self::S24_INCOMING_STATE => 'Przychodząca zmiana stanu STEROWANIE24',
+        self::s24_OUTGOING_STATE => 'Wychodząca zmiana stanu STEROWANIE24',
     ];
 
     /**
