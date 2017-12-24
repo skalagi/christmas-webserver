@@ -108,6 +108,9 @@ class AVRService
         $this->__is_sending = true;
         $result = fwrite($this->tcpHandle, $message);
         $this->__is_sending = false;
+        if($result === false) {
+            throw new AVRException('Cannot send message to AVR Controller!');
+        }
         return $result;
     }
 
