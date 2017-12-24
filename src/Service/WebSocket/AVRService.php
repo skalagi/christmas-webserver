@@ -88,7 +88,7 @@ class AVRService
             fclose($this->tcpHandle);
         }
 
-        $this->tcpHandle = stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
+        $this->tcpHandle = @stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
         if (!$this->tcpHandle) {
 
             $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $err));
