@@ -89,7 +89,15 @@ class ChangeStateController implements ControllerInterface
             /** @noinspection PhpUndefinedFieldInspection */
             $this->busy = (int)$from->resourceId;
 
-            $this->lights->changeState($input->identity, $input->state);
+            try {
+                $this->lights->changeState($input->identity, $input->state);
+            } catch (AVRException $ex) {
+                    $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
+                    $this->busy = false;
+                    throw $ex;
+                });
+            }
+            
             $this->clients->broadcastMessage(new ChangeStateBroadcast([
                 'value' => [
                     'identity' => $input->identity,
@@ -100,9 +108,6 @@ class ChangeStateController implements ControllerInterface
             /** @noinspection PhpUndefinedFieldInspection */
             $this->logChangeState((int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0], $input->identity, $input->state);
 
-            $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
-                $this->busy = false;
-            });
 
             return array_merge(['value' => $input->getFields()], [
                 'controllerResponse' => 'OK',
