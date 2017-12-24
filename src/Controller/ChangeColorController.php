@@ -62,7 +62,7 @@ class ChangeColorController implements ControllerInterface
         }
 
         if($this->sumTotalDuration($changes) > self::MAX_TOTAL_DURATION_OF_CHANGE_SET) {
-            throw new ChangeColorException('Max changes limit reached!');
+            throw new ChangeColorException('Too long sequence!');
         }
 
         /** @var ColorChange $change */
