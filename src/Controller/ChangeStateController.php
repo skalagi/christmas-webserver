@@ -45,7 +45,7 @@ class ChangeStateController implements ControllerInterface
     private $database;
 
     const BUSY_LIMIT_PER_USER = 15; // max 60
-    const WORKER_TIMEOUT = .5;
+    const WORKER_TIMEOUT =1;
 
     /**
      * LightsController constructor.
