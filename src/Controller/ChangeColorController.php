@@ -92,7 +92,7 @@ class ChangeColorController implements ControllerInterface
      */
     private function createAppChangeColorFromTransport(TransportColorChange $sourceChange, $rid, $ip) {
         $change = new ColorChange();
-        $change->hex = $sourceChange->hex;
+        $change->rgb = $sourceChange->rgb;
         $change->duration = $sourceChange->duration;
         $change->uid = $rid;
         $change->ip = $ip;

@@ -5,9 +5,9 @@ namespace Syntax\Model\Application;
 class ColorChange
 {
     /**
-     * @var string
+     * @var array
      */
-    public $hex;
+    public $rgb = [];
 
     /**
      * @var int|null

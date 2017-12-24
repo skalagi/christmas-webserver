@@ -124,18 +124,18 @@ class ColorChangesQueue
     }
 
     /**
-     * @param string $hex
+     * @param string $rgb
      * @param int $duration
      * @param int $rid
      * @param string $ip
      */
-    private function logQueueExecute($hex, $duration, $rid, $ip)
+    private function logQueueExecute($rgb, $duration, $rid, $ip)
     {
         $log = new LogEntity();
         $log->createdTime = new \DateTime;
         $log->initiator = self::class.':'.__LINE__;
         $log->name = LogEvents::COLOR_QUEUE_EXEC;
-        $log->data['hex'] = $hex;
+        $log->data['colors'] = $rgb;
         $log->data['duration'] = $duration ?: $this->defaultDuration;
         $log->data['rid'] = $rid;
         $log->data['ip'] = $ip;
