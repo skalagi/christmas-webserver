@@ -42,9 +42,9 @@ class AVRService
     private $__last_connection = null;
 
     /**
-     * @var int
+     * @var boolean
      */
-    private $__retry_counter = 0;
+    private $__is_sending = false;
 
     const CONNECTION_EXPIRE_SECONDS = 180;
     const MAX_RETRY = 20;
@@ -82,20 +82,14 @@ class AVRService
      */
     public function reopenConnection()
     {
+        if($this->__is_sending) return;
+        
         if($this->tcpHandle) {
             fclose($this->tcpHandle);
         }
 
-        $this->tcpHandle = @stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
+        $this->tcpHandle = stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
         if (!$this->tcpHandle) {
-            if($this->__retry_counter++ < static::MAX_RETRY) {
-                $this->addAVRLog(
-                    LogEvents::AVR_ERROR,
-                    sprintf('Cannot connect to AVR module on %s:%s.'.PHP_EOL.'Retrying after 10 seconds..', $this->host, $this->port)
-                );
-                sleep(10);
-                return $this->reopenConnection();
-            }
 
             $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $err));
             throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));
@@ -111,7 +105,10 @@ class AVRService
      */
     public function send($message)
     {
-        return fwrite($this->tcpHandle, $message);
+        $this->__is_sending = true;
+        $result = fwrite($this->tcpHandle, $message);
+        $this->__is_sending = false;
+        return $result;
     }
 
     /**
