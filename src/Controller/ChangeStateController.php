@@ -92,10 +92,10 @@ class ChangeStateController implements ControllerInterface
             try {
                 $this->lights->changeState($input->identity, $input->state);
             } catch (AVRException $ex) {
-                    $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
+                $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
                     $this->busy = false;
-                    throw $ex;
                 });
+                throw $ex;
             }
             
             $this->clients->broadcastMessage(new ChangeStateBroadcast([
