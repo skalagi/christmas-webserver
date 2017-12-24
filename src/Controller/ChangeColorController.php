@@ -66,7 +66,7 @@ class ChangeColorController implements ControllerInterface
         foreach($changes as $change) {
             $this->queue->addChange($change);
             /** @noinspection PhpUndefinedFieldInspection */
-            $this->logColorChange($change->hex, $change->duration, (int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0]);
+            $this->logColorChange($change->rgb, $change->duration, (int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0]);
         }
     }
 
@@ -100,18 +100,18 @@ class ChangeColorController implements ControllerInterface
     }
 
     /**
-     * @param string $hex
+     * @param string $rgb
      * @param int $duration
      * @param int $rid
      * @param string $ip
      */
-    private function logColorChange($hex, $duration, $rid, $ip)
+    private function logColorChange($rgb, $duration, $rid, $ip)
     {
         $log = new LogEntity();
         $log->name = LogEvents::CHANGE_COLOR_CONTROLLER;
         $log->createdTime = new \DateTime;
         $log->initiator = __CLASS__.':'.__LINE__;
-        $log->data['hex'] = $hex;
+        $log->data['rgb'] = $rgb;
         $log->data['duration'] = $duration;
         $log->data['rid'] = $rid;
         $log->data['ip'] = $ip;

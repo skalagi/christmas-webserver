@@ -31,7 +31,7 @@ class ChangeColor extends AbstractTransportJSON
             $changes = [];
             foreach($this->fields['changes'] as $sourceChange) {
                 $change = new ColorChange();
-                $change->hex = $sourceChange['hex'];
+                $change->hex = $sourceChange['rgb'];
                 $change->duration = $sourceChange['duration'];
                 $changes[] = $change;
             }
