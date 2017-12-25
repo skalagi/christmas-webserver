@@ -63,8 +63,6 @@ class AVRService
 
         $this->database = $database;
         $this->loop = $loop;
-
-        $this->reopenConnection();
     }
 
     /**
@@ -102,16 +100,7 @@ class AVRService
         try {
             $this->connection->write($message);
         } catch (\Exception $ex) {
-            if($this->__trying_reopen_after_failed_write) {
-                $this->__trying_reopen_after_failed_write = false;
-                throw new AVRException($ex->getMessage());
-            }
-            
-            $this->reopenConnection();
-            $this->__trying_reopen_after_failed_write = true;
-            $this->loop->addTimer(5, function() use($message) {
-                $this->send($message);
-            });
+            throw new AVRException($ex->getMessage());
         }
     }
 
