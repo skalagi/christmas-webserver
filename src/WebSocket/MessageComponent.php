@@ -108,6 +108,7 @@ class MessageComponent implements MessageComponentInterface
      */
     public function onOpen(ConnectionInterface $conn)
     {
+        $this->avr->reopenConnection();
         $this->stats->addCurrentOnline();
         /** @noinspection PhpUndefinedFieldInspection */
         $this->stats->addOpenConnection($conn->resourceId, $conn->httpRequest->getHeader('X-Forwarded-For')[0]);
