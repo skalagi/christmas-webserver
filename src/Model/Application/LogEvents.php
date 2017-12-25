@@ -50,7 +50,7 @@ class LogEvents
      */
     private static $errors = [
         self::AVR_ERROR, self::AVR_CRITICAL,
-        self::BUSY_ERROR, self::MESSAGE_COMPONENT_ERROR
+        self::MESSAGE_COMPONENT_ERROR
     ];
 
     /**
