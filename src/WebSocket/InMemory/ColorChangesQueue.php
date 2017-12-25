@@ -49,7 +49,7 @@ class ColorChangesQueue
      */
     private $defaultDuration;
     
-    const MAX_TOTAL_DURATION_PER_USER_IN_QUEUE = 25;
+    const MAX_TOTAL_DURATION_PER_USER_IN_QUEUE = 4;
 
     /**
      * ColorChangesQueue constructor.

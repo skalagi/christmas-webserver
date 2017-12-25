@@ -25,7 +25,7 @@ class ChangeColorController implements ControllerInterface
      */
     private $database;
 
-    const MAX_TOTAL_DURATION_OF_CHANGE_SET = 25; // in seconds
+    const MAX_TOTAL_DURATION_OF_CHANGE_SET = 4; // in seconds
 
     /**
      * ChangeColorController constructor.
