@@ -27,11 +27,6 @@ class AVRService
     private $timeout;
 
     /**
-     * @var ConnectionInterface
-     */
-    private $connection;
-
-    /**
      * @var Database
      */
     private $database;
@@ -40,11 +35,6 @@ class AVRService
      * @var LoopInterface
      */
     private $loop;
-    
-    /**
-     * @var boolean
-     */
-    private $__trying_reopen_after_failed_write = false;
 
     /**
      * AVRService constructor.
@@ -73,12 +63,13 @@ class AVRService
     {
         try {
             $connector = new \React\Socket\Connector($this->loop);
-            $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) {
-                $this->connection = $conn;
+            $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) use($message) {
+                $conn->write($message);
+                $conn->end();
 
-                $this->connection->on('data', function($chunk) {
+                $conn->on('data', function($chunk) use($conn) {
                     $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
-                    $this->connection->close();
+                    $conn->close();
                 });
 
                 $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
@@ -86,8 +77,6 @@ class AVRService
                 $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
                 throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));           
             });
-            $this->connection->write($message);
-            $this->connection->end();
         } catch (\Exception $ex) {
             throw new AVRException($ex->getMessage());
         }
