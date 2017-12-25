@@ -103,11 +103,6 @@ class ColorChangesQueue
                     );
 
                     $this->lastChange = $nextChange;
-                }, function() use($nextChange) {
-                    $error = new Error();
-                    $error->reason = 'AVR controller is overloaded!';
-                    $error->type = \Syntax\Exception\AVRBusyException::class;
-                    $nextChange->connection->send($error->_toJSON());
                 });
             } catch (\Syntax\Exception\AVRException $ex) {
                 $errTransport = new \Syntax\Model\Transport\Error();
@@ -116,6 +111,11 @@ class ColorChangesQueue
                 $nextChange->connection->send($errTransport->_toJSON());
                 
                 $this->addAVRLog(LogEvents::AVR_ERROR, $ex->getMessage());
+            } catch(\Syntax\Exception\AVRBusyException $e) {
+                $errTransport = new \Syntax\Model\Transport\Error();
+                $errTransport->reason = 'Cannot play sequence because AVR module is busy! Try again.';
+                $errTransport->type = get_class($ex);
+                $nextChange->connection->send($errTransport->_toJSON());
             }
         }
 
