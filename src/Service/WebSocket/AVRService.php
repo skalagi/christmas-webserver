@@ -66,12 +66,14 @@ class AVRService
             $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) use($message) {
                 $conn->write($message);
                 
-                $conn->on('data', function($chunk) use($conn) {
+                $conn->on('data', function($chunk) {
                     $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
                 });
 
-                $conn->end();
-                $conn->close();
+                $this->loop->addPeriodicTimer(5, function() use($conn) {
+                    $conn->end();
+                    $conn->close();
+                });
             }, function(\Exception $e) {
                 $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
                 throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));           
