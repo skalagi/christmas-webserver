@@ -48,6 +48,8 @@ class ColorChangesQueue
      * @var int
      */
     private $defaultDuration;
+    
+    const MAX_TOTAL_DURATION_PER_USER_IN_QUEUE = 25;
 
     /**
      * ColorChangesQueue constructor.
@@ -72,6 +74,9 @@ class ColorChangesQueue
      */
     public function addChange(ColorChange $change)
     {
+        if($this->sumOfDurationPerUser($change->connection->resourceId) > self::MAX_TOTAL_DURATION_PER_USER_IN_QUEUE) {
+            throw new \Syntax\Exception\ChangeColorException('You made too many changes in colors queue! Wait a few seconds, before next.');
+        }
         $this->changes[] = $change;
         return $this;
     }
@@ -120,6 +125,19 @@ class ColorChangesQueue
         }
 
         $this->loop->addTimer($duration, [$this, 'queueLoopCall']);
+    }
+    
+    /**
+     * @param int $resourceId
+     * @return int
+     */
+    private function sumOfDurationPerUser($resourceId) 
+    {
+        $sum = 0;
+        foreach($this->changes as $change) {
+            if($change->connection->resourceId == $resourceId) $sum += $change->duration;
+        }
+        return $sum;
     }
 
     /**
