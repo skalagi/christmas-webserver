@@ -10,11 +10,11 @@ class Channels
             'label' => 'White center'
         ],
         [
-            'identity' => 1,
+            'identity' => 2,
             'label' => 'Icicles'
         ],
         [
-            'identity' => 2,
+            'identity' => 1,
             'label' => 'White bottom'
         ],
         [
