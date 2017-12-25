@@ -88,7 +88,27 @@ class ColorChangesQueue
         if($nextChange instanceof ColorChange) {
             $duration = $nextChange->duration ? $nextChange->duration : $duration;
             try {
-                $this->avr->send('L'.$nextChange->rgb[0].'A'.$nextChange->rgb[1].'A'.$nextChange->rgb[2]);
+                $this->avr->send('L'.$nextChange->rgb[0].'A'.$nextChange->rgb[1].'A'.$nextChange->rgb[2], function() use($nextChange, $duration) {
+                    $this->clients->broadcastMessage(new ChangeColorBroadcast([
+                        'value' => [
+                            'rgb' => $nextChange->rgb
+                        ]
+                    ]), null);
+
+                    $this->logQueueExecute(
+                        'R='.$nextChange->rgb[0].' G='.$nextChange->rgb[1].' B='.$nextChange->rgb[2],
+                        $duration,
+                        $nextChange->uid,
+                        $nextChange->ip
+                    );
+
+                    $this->lastChange = $nextChange;
+                }, function() use($nextChange) {
+                    $error = new Error();
+                    $error->reason = 'AVR controller is overloaded!';
+                    $error->type = \Syntax\Exception\AVRBusyException::class;
+                    $nextChange->connection->send($error->_toJSON());
+                });
             } catch (\Syntax\Exception\AVRException $ex) {
                 $errTransport = new \Syntax\Model\Transport\Error();
                 $errTransport->reason = 'Colors queue fail when connecting to AVR!';
@@ -97,22 +117,6 @@ class ColorChangesQueue
                 
                 $this->addAVRLog(LogEvents::AVR_ERROR, $ex->getMessage());
             }
-            
-
-            $this->clients->broadcastMessage(new ChangeColorBroadcast([
-                'value' => [
-                    'rgb' => $nextChange->rgb
-                ]
-            ]), null);
-
-            $this->logQueueExecute(
-                'R='.$nextChange->rgb[0].' G='.$nextChange->rgb[1].' B='.$nextChange->rgb[2],
-                $duration,
-                $nextChange->uid,
-                $nextChange->ip
-            );
-
-            $this->lastChange = $nextChange;
         }
 
         $this->loop->addTimer($duration, [$this, 'queueLoopCall']);

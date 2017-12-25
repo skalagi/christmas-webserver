@@ -42,10 +42,10 @@ class Lights
      * @param bool $value
      * @return $this
      */
-    public function changeState($offset, $value)
+    public function changeState($offset, $value, callable $successCallback, callable $errorCallback)
     {
         $this->storage[$offset] = (bool)$value;
-        $this->avr->send('P'.$this->toByte());
+        $this->avr->send('P'.$this->toByte(), $successCallback, $errorCallback);
         return $this;
     }
 
@@ -53,13 +53,12 @@ class Lights
      * @param int $byte
      * @return $this
      */
-    public function setByte($byte)
+    public function setByte($byte, callable $successCallback, callable $errorCallback)
     {
         $i=0;
         foreach(str_split(sprintf('%04d', decbin($byte))) as $bit) {
-            $this->storage[$i++] = (bool)$bit;
+            $this->changeState($i, (bool)$bit, $successCallback, $errorCallback);
         }
-        $this->avr->send('P'.$this->toByte());
         return $this;
     }
 

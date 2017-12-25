@@ -44,8 +44,6 @@ class ChangeStateController implements ControllerInterface
      */
     private $database;
 
-    const BUSY_LIMIT_PER_USER = 15; // max 60
-    const WORKER_TIMEOUT = .45;
 
     /**
      * LightsController constructor.
@@ -70,100 +68,30 @@ class ChangeStateController implements ControllerInterface
      */
     public function execute($input,  ConnectionInterface &$from)
     {
-        if($this->busy) {
-            /** @noinspection PhpUndefinedFieldInspection */
-            if($this->busy == $from->resourceId) {
-                /** @noinspection PhpUndefinedFieldInspection */
-                $this->logBusyError($from->resourceId);
-            }
-
-            /** @noinspection PhpUndefinedFieldInspection */
-            if($this->checkIfShouldBan($from->resourceId)) {
-                $exception = new ChangeStateException('Operations limit reached.. Client kicked!');
-                $exception->closeConnection = true;
-            }
-            throw isset($exception) ? $exception : new ChangeStateException('Wait a second before next change attempt!');
-        }
-
         try {
-            /** @noinspection PhpUndefinedFieldInspection */
-            $this->busy = (int)$from->resourceId;
+            $this->lights->changeState($input->identity, $input->state, function() use($input, $from) {
+                $this->clients->broadcastMessage(new ChangeStateBroadcast([
+                    'value' => [
+                        'identity' => $input->identity,
+                        'state' => $input->state
+                    ]
+                ]), null);
+                
+                 /** @noinspection PhpUndefinedFieldInspection */
+                $this->logChangeState((int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0], $input->identity, $input->state);
+            }, function() use($from) {
+                $error = new Error();
+                $error->reason = 'AVR controller is overloaded!';
+                $error->type = \Syntax\Exception\AVRBusyException::class;
+                $from->send($error->_toJSON());
+            });
 
-            try {
-                $this->lights->changeState($input->identity, $input->state);
-            } catch (\Exception $ex) {
-                $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
-                    $this->busy = false;
-                });
-                throw $ex;
-            }
-            
-            $this->clients->broadcastMessage(new ChangeStateBroadcast([
-                'value' => [
-                    'identity' => $input->identity,
-                    'state' => $input->state
-                ]
-            ]), $from);
-
-            /** @noinspection PhpUndefinedFieldInspection */
-            $this->logChangeState((int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0], $input->identity, $input->state);
-
-            $this->loop->addTimer(self::WORKER_TIMEOUT, function() {
-                    $this->busy = false;
-             });
-
-            return array_merge(['value' => $input->getFields()], [
-                'controllerResponse' => 'OK',
-                'action' => 'ChangeState'
-            ]);
         } catch(AVRException $e) {
-            $this->responseAVRError($from, $e->getMessage());
-            return array_merge(['value' => $input->getFields()], [
-                'controllerResponse' => 'ERR',
-                'action' => 'ChangeState'
-            ]);
+            $error = new Error();
+            $error->reason = $e->getMessage();
+            $error->type = get_class($e);
+            return $error->getFields();
         }
-    }
-
-    /**
-     * @param $resourceId
-     * @return bool
-     */
-    private function checkIfShouldBan($resourceId)
-    {
-        $lastBusyTimeLimiter = new \DateTime();
-        $lastBusyTimeLimiter->modify('-'.static::BUSY_LIMIT_PER_USER.' seconds');
-        $lastBusy = count($this->database->selectQuery('WHERE `data` LIKE "%'.$resourceId.'%" AND `created_time` > "'.$lastBusyTimeLimiter->format('Y-m-d H:i:s').'" AND `name` = "'.LogEvents::BUSY_ERROR.'"'));
-        if($lastBusy > static::BUSY_LIMIT_PER_USER+((int)static::BUSY_LIMIT_PER_USER/4)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param ConnectionInterface $conn
-     * @param $message
-     */
-    private function responseAVRError(ConnectionInterface $conn, $message)
-    {
-        $error = new Error();
-        $error->reason = $message;
-        $error->type = AVRException::class;
-        $conn->send($error->_toJSON());
-    }
-
-    /**
-     * @param int $resourceId
-     */
-    private function logBusyError($resourceId)
-    {
-        $log = new LogEntity();
-        $log->createdTime = new \DateTime();
-        $log->initiator = __CLASS__.': '.__LINE__;
-        $log->name = LogEvents::BUSY_ERROR;
-        $log->data['rid'] = $resourceId;
-        $this->database->addLog($log);
     }
 
     /**

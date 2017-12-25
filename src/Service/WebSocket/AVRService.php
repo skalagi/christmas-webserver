@@ -3,6 +3,7 @@
 namespace Syntax\Service\WebSocket;
 
 use Syntax\Exception\AVRException;
+use Syntax\Exception\AVRBusyException;
 use Syntax\Model\Application\LogEntity;
 use Syntax\Model\Application\LogEvents;
 use Syntax\Service\Database;
@@ -35,6 +36,13 @@ class AVRService
      * @var LoopInterface
      */
     private $loop;
+    
+    /**
+     * @var boolean 
+     */
+    private $busy = false;
+    
+    const MESSAGE_TIMEOUT = 6;
 
     /**
      * AVRService constructor.
@@ -56,23 +64,42 @@ class AVRService
     }
 
     /**
-     * @param $message
+     * @param $msg
+     * @param callable|null $successCallback
+     * @param callable|null $errorCallback
      * @return int
      */
-    public function send($message)
+    public function send($msg, $successCallback = null, $errorCallback = null)
     {
+        if($this->busy) {
+            throw new AVRBusyException('AVR is busy!');
+        }
+        
         try {
             $connector = new \React\Socket\Connector($this->loop);
-            $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) use($message) {
-                $conn->write($message);
-                
-                $conn->on('data', function($chunk) {
-                    $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
-                });
-
-                $this->loop->addPeriodicTimer(5, function() use($conn) {
+            $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) use($msg, $successCallback, $errorCallback) {
+                $this->busy = true;
+                $conn->write($msg);
+                $errorTimer = $this->loop->addPeriodicTimer(self::MESSAGE_TIMEOUT, function() use($conn, $errorCallback) {
                     $conn->end();
                     $conn->close();
+                    if(is_callable($errorCallback)) {
+                        $errorCallback();
+                    }
+                    $this->busy = false;
+                });
+
+                $conn->on('data', function($chunk) use($successCallback, $errorTimer, $conn) {
+                    $this->loop->cancelTimer($errorTimer);
+                    
+                    $conn->end();
+                    $conn->close();
+                    $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
+                    if(is_callable($successCallback)) {
+                        $successCallback($chunk);
+                    }
+                    
+                    $this->busy = false;
                 });
             }, function(\Exception $e) {
                 $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
@@ -82,7 +109,7 @@ class AVRService
             throw new AVRException($ex->getMessage());
         }
     }
-
+    
     /**
      * @param $logEvent
      * @param $message

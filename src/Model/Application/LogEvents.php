@@ -15,7 +15,6 @@ class LogEvents
     # ERRORS
     const AVR_ERROR = 'avr_error';
     const AVR_CRITICAL = 'avr_critical';
-    const BUSY_ERROR = 'busy_error';
     const MESSAGE_COMPONENT_ERROR = 'mc_error';
 
     # COLORS QUEUE
@@ -40,7 +39,6 @@ class LogEvents
         self::AVR_MESSAGE => 'Wiadomość ze sterownika AVR',
         self::AVR_ERROR => 'Błąd sterownika AVR',
         self::AVR_CRITICAL => 'Krytyczny błąd łączenia AVR',
-        self::BUSY_ERROR => 'Zajętość modułu przekaźnikowego',
         self::MESSAGE_COMPONENT_ERROR => 'Błąd serwera WS',
         self::COLOR_QUEUE_EXEC => 'Wysłanie zmiany koloru do AVR'
     ];
