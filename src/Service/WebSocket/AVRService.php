@@ -80,7 +80,7 @@ class AVRService
             $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) use($msg, $successCallback, $errorCallback) {
                 $this->busy = true;
                 $conn->write($msg);
-                $errorTimer = $this->loop->addPeriodicTimer(self::MESSAGE_TIMEOUT, function() use($conn, $errorCallback) {
+                $errorTimer = $this->loop->addTimer(self::MESSAGE_TIMEOUT, function() use($conn, $errorCallback) {
                     $conn->end();
                     $conn->close();
                     if(is_callable($errorCallback)) {
