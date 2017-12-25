@@ -114,7 +114,7 @@ class ColorChangesQueue
             } catch(\Syntax\Exception\AVRBusyException $e) {
                 $errTransport = new \Syntax\Model\Transport\Error();
                 $errTransport->reason = 'Cannot play sequence because AVR module is busy! Try again.';
-                $errTransport->type = get_class($ex);
+                $errTransport->type = get_class($e);
                 $nextChange->connection->send($errTransport->_toJSON());
             }
         }
