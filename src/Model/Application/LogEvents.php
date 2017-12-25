@@ -21,8 +21,9 @@ class LogEvents
     # COLORS QUEUE
     const COLOR_QUEUE_EXEC = 'color_queue_exec';
 
-    # AVR SUCCESS
+    # AVR 
     const AVR_CONNECTED = 'avr_connected';
+    const AVR_MESSAGE = 'avr_msg';
 
     /**
      * Event name's labels

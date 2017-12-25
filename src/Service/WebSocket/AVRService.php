@@ -66,39 +66,28 @@ class AVRService
     }
 
     /**
-     * Reopen connection to worker module
-     */
-    public function reopenConnection()
-    {
-        if($this->connection) {
-            $this->connection->end();
-            $this->connection->close();
-        }
-        $connector = new \React\Socket\Connector($this->loop);
-        $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) {
-            $this->connection = $conn;
-            
-            $this->connection->on('data', function($chunk) {
-                if($chunk == 'R') {
-                    $this->loop->addTimer(15, [$this, 'reopenConnection']);
-                }
-            });
-            
-            $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
-        }, function(\Exception $e) {
-            $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
-            throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));           
-        });
-    }
-
-    /**
      * @param $message
      * @return int
      */
     public function send($message)
     {
         try {
+            $connector = new \React\Socket\Connector($this->loop);
+            $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) {
+                $this->connection = $conn;
+
+                $this->connection->on('data', function($chunk) {
+                    $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
+                    $this->connection->close();
+                });
+
+                $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
+            }, function(\Exception $e) {
+                $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
+                throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));           
+            });
             $this->connection->write($message);
+            $this->connection->end();
         } catch (\Exception $ex) {
             throw new AVRException($ex->getMessage());
         }

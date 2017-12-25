@@ -125,7 +125,6 @@ class MessageComponent implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         try {
-            $this->avr->reopenConnection();
             $input = json_decode($msg, JSON_OBJECT_AS_ARRAY);
             $controller = $this->controllers->findController($input);
             $response = $controller->execute(
