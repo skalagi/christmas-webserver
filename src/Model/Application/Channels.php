@@ -22,4 +22,11 @@ class Channels
             'label' => 'Red serpent'
         ]
     ];
+    
+    public static function getById($identity) {
+        foreach(self::$definition as $channel) {
+            if($channel['identity'] = $identity) return $channel;
+        }
+        return null;
+    }
 }
