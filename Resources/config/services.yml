@@ -27,7 +27,7 @@ services:
   # AVR module
   avr:
     class: '\Syntax\Service\WebSocket\AVRService'
-    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@database']
+    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@database', '@loop']
 
   # IN-Memory
   clients_inmemory:

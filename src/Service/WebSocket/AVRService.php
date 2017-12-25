@@ -6,6 +6,8 @@ use Syntax\Exception\AVRException;
 use Syntax\Model\Application\LogEntity;
 use Syntax\Model\Application\LogEvents;
 use Syntax\Service\Database;
+use React\EventLoop\LoopInterface;
+use React\Socket\ConnectionInterface;
 
 class AVRService
 {
@@ -25,34 +27,24 @@ class AVRService
     private $timeout;
 
     /**
-     * @var resource
+     * @var ConnectionInterface
      */
-    private $tcpHandle;
-
+    private $connection;
 
     /**
      * @var Database
      */
     private $database;
     
-
     /**
-     * @var null|int
+     * @var LoopInterface
      */
-    private $__last_connection = null;
-
-    /**
-     * @var boolean
-     */
-    private $__is_sending = false;
+    private $loop;
     
     /**
      * @var boolean
      */
-    private $__trying_connecting_after_failed_fwrite = false;
-
-    const CONNECTION_EXPIRE_SECONDS = 180;
-    const MAX_RETRY = 20;
+    private $__trying_reopen_after_failed_write = false;
 
     /**
      * AVRService constructor.
@@ -60,26 +52,19 @@ class AVRService
      * @param int $avrPort
      * @param int $avrTimeout
      * @param Database $database
+     * @param LoopInterface $loop
      * @throws AVRException
      */
-    public function __construct($avrHost, $avrPort, $avrTimeout, Database $database)
+    public function __construct($avrHost, $avrPort, $avrTimeout, Database $database, LoopInterface $loop)
     {
         $this->host = $avrHost;
         $this->port = $avrPort;
         $this->timeout = $avrTimeout;
 
         $this->database = $database;
+        $this->loop = $loop;
 
         $this->reopenConnection();
-    }
-
-
-    /**
-     * Lights destructor.
-     */
-    public function __destruct()
-    {
-        if($this->tcpHandle) fclose($this->tcpHandle);
     }
 
     /**
@@ -87,21 +72,21 @@ class AVRService
      */
     public function reopenConnection()
     {
-        if($this->__is_sending) return;
-        
-        if($this->tcpHandle) {
-            fclose($this->tcpHandle);
-        }
-
-        $this->tcpHandle = @stream_socket_client('tcp://'.$this->host.':'.$this->port, $err, $errStr, $this->timeout, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT);
-        if (!$this->tcpHandle) {
-
-            $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $errStr, $err));
-            throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));
-        }
-
-        $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
-        $this->__last_connection = time();
+        $connector = new React\Socket\Connector($this->loop);
+        $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) {
+            $this->connection = $conn;
+            
+            $this->connection->on('data', function($chunk) {
+                if($chunk == 'R') {
+                    $this->loop->addTimer(15, [$this, 'reopenConnection']);
+                }
+            });
+            
+            $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
+        }, function(\Exception $e) {
+            $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
+            throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));           
+        });
     }
 
     /**
@@ -110,18 +95,21 @@ class AVRService
      */
     public function send($message)
     {
-        $this->__is_sending = true;
-        $result = @fwrite($this->tcpHandle, $message);
-        $this->__is_sending = false;
-        if(!$result) {
-            if($this->__trying_connecting_after_failed_fwrite) {
-                throw new AVRException('Cannot send message to AVR Controller!');
+        try {
+            $this->connection->write($message);
+            $this->connection->end();
+        } catch (\Exception $ex) {
+            if($this->__trying_reopen_after_failed_write) {
+                $this->__trying_reopen_after_failed_write = false;
+                throw new AVRException($ex->getMessage());
             }
+            
             $this->reopenConnection();
-            $this->__trying_connecting_after_failed_fwrite = true;
-            $this->send($message);
+            $this->__trying_reopen_after_failed_write = true;
+            $this->loop->addTimer(5, function() use($message) {
+                $this->send($message);
+            });
         }
-        return $result;
     }
 
     /**
