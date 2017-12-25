@@ -79,9 +79,10 @@ class ChangeStateController implements ControllerInterface
                 
                  /** @noinspection PhpUndefinedFieldInspection */
                 $this->logChangeState((int)$from->resourceId, $from->httpRequest->getHeader('X-Forwarded-For')[0], $input->identity, $input->state);
-            }, function() use($from) {
+            }, function() use($from, $input) {
+                $channel = \Syntax\Model\Application\Channels::getById($input->identity);
                 $error = new Error();
-                $error->reason = 'AVR controller is overloaded!';
+                $error->reason = 'Your change of '.$channel['label'].' to '.($input->state ? 'ENABLED' : 'DISABLED').' was not executed!';
                 $error->type = \Syntax\Exception\AVRBusyException::class;
                 $from->send($error->_toJSON());
             });
