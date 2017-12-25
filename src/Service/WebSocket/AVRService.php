@@ -72,6 +72,10 @@ class AVRService
      */
     public function reopenConnection()
     {
+        if($this->connection) {
+            $this->connection->end();
+            $this->connection->close();
+        }
         $connector = new \React\Socket\Connector($this->loop);
         $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) {
             $this->connection = $conn;
@@ -97,7 +101,6 @@ class AVRService
     {
         try {
             $this->connection->write($message);
-            $this->connection->end();
         } catch (\Exception $ex) {
             if($this->__trying_reopen_after_failed_write) {
                 $this->__trying_reopen_after_failed_write = false;
