@@ -68,11 +68,10 @@ class AVRService
                 
                 $conn->on('data', function($chunk) use($conn) {
                     $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
-                    $conn->end();
-                    $conn->close();
                 });
 
-                $this->addAVRLog(LogEvents::AVR_CONNECTED, sprintf('Open connection to worker module on %s:%s', $this->host, $this->port));
+                $conn->end();
+                $conn->close();
             }, function(\Exception $e) {
                 $this->addAVRLog(LogEvents::AVR_CRITICAL, sprintf('%s (%s)', $e->getMessage(), get_class($e)));
                 throw new AVRException(sprintf('Cannot connect to AVR module on %s:%s.', $this->host, $this->port));           
