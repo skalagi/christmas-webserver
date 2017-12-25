@@ -37,8 +37,11 @@ class LogEvents
         self::CHANGE_COLOR_CONTROLLER => 'Zmiana koloru',
         self::CHANGE_STATE_CONTROLLER => 'Zmiana stanu',
         self::AVR_CONNECTED => 'Podłączono do sterownika',
+        self::AVR_MESSAGE => 'Wiadomość ze sterownika AVR',
         self::AVR_ERROR => 'Błąd sterownika AVR',
-        self::BUSY_ERROR => 'Wyrzucenie klienta',
+        self::AVR_CRITICAL => 'Krytyczny błąd łączenia AVR',
+        self::BUSY_ERROR => 'Zajętość modułu przekaźnikowego',
+        self::MESSAGE_COMPONENT_ERROR => 'Błąd serwera WS',
         self::COLOR_QUEUE_EXEC => 'Wysłanie zmiany koloru do AVR'
     ];
 
