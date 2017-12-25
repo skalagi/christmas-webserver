@@ -65,10 +65,10 @@ class AVRService
             $connector = new \React\Socket\Connector($this->loop);
             $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) use($message) {
                 $conn->write($message);
-                $conn->end();
-
+                
                 $conn->on('data', function($chunk) use($conn) {
                     $this->addAVRLog(LogEvents::AVR_MESSAGE, $chunk);
+                    $conn->end();
                     $conn->close();
                 });
 
