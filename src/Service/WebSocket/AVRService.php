@@ -72,7 +72,7 @@ class AVRService
      */
     public function reopenConnection()
     {
-        $connector = new React\Socket\Connector($this->loop);
+        $connector = new \React\Socket\Connector($this->loop);
         $connector->connect('tcp://'.$this->host.':'.$this->port)->then(function (ConnectionInterface $conn) {
             $this->connection = $conn;
             
