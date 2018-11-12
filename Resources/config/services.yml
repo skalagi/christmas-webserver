@@ -19,67 +19,53 @@ services:
 
   message_component:
     class: '\Syntax\WebSocket\MessageComponent'
-    arguments: ['@clients_inmemory', '@statistics', '@database', '@controllers_dispatcher', '@start_message_states', '@start_message_colors', '@avr', '@colors_inmemory', '@log_displayer', '@input']
+    arguments: ['@clients_inmemory', '@controllers_dispatcher']
+
+  clients_inmemory:
+    class: '\Syntax\WebSocket\InMemory\Clients'
 
   controllers_dispatcher:
     class: '\Syntax\WebSocket\ControllersDispatcher'
 
   # AVR module
   avr:
-    class: '\Syntax\Service\WebSocket\AVRService'
-    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@database', '@loop']
+    class: '\Syntax\Service\UC\AVRService'
+    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@loop']
 
-  # IN-Memory
-  clients_inmemory:
-    class: '\Syntax\WebSocket\InMemory\Clients'
-
-  lights_inmemory:
-    class: '\Syntax\WebSocket\InMemory\Lights'
+  avr.led:
+    class: '\Syntax\Service\UC\LED'
     arguments: ['@avr']
 
-  colors_inmemory:
-    class: '\Syntax\WebSocket\InMemory\ColorChangesQueue'
-    arguments: ['@loop', '@avr', '@database', '@clients_inmemory', '%colors_changes_queue_default_duration%']
+  avr.relays:
+    class: '\Syntax\Service\UC\Relays'
+    arguments: ['@avr']
 
-  # Common
-  database:
-    class: '\Syntax\Service\Database'
-    arguments: ['@log_displayer', '%sqlite%']
+  # Queue
+  queue:
+    class: '\Syntax\Service\Queue'
+    arguments: ['@loop', '%queue_interval%']
 
-  statistics:
-    class: '\Syntax\Service\Stats'
-    arguments: ['@database', '@clients_inmemory']
+  queue.state_executor:
+    class: '\Syntax\Service\Executor\ChangeStateExecutor'
+    arguments: ['@avr.relays']
+    calls:
+      - ['setClients', ['@clients_inmemory']]
+
+  queue.color_executor:
+    class: '\Syntax\Service\Executor\ChangeColorExecutor'
+    arguments: ['@avr.led']
+    calls:
+      - ['setClients', ['@clients_inmemory']]
+
+  # Logger
+  logger:
+    class: '\Syntax\Service\Logger'
 
   # Controllers
   ChangeStateController:
     class: '\Syntax\Controller\ChangeStateController'
-    arguments: ['@lights_inmemory', '@clients_inmemory', '@loop', '@database']
+    arguments: ['@queue']
 
   ChangeColorController:
       class: '\Syntax\Controller\ChangeColorController'
-      arguments: ['@colors_inmemory', '@database']
-
-  start_message_states:
-    class: '\Syntax\Service\WebSocket\ChangeStateStartMessage'
-    arguments: ['@lights_inmemory']
-
-  start_message_colors:
-    class: '\Syntax\Service\WebSocket\ChangeColorStartMessage'
-    arguments: ['@colors_inmemory']
-
-  # Admin
-  stdout:
-    class: '\Symfony\Component\Console\Output\ConsoleOutput'
-
-  log_displayer:
-    class: '\Syntax\Service\LogDisplayer'
-    arguments: ['@stdout']
-
-  input:
-    class: '\Syntax\Admin\Input'
-    arguments: ['@loop', '@stdout']
-
-  # Admin commands
-  shutdownCommand:
-    class: '\Syntax\Admin\Commands\Shutdown'
-    arguments: ['@clients_inmemory']
+      arguments: ['@queue']

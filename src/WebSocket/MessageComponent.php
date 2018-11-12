@@ -5,14 +5,16 @@ namespace Syntax\WebSocket;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Syntax\Admin\Input;
+use Syntax\ChristmasContainer;
 use Syntax\Exception\WSException;
 use Syntax\Model\Transport\Error;
 use Syntax\Service\LogDisplayer;
+use Syntax\Service\Logger;
 use Syntax\Service\Stats;
 use Syntax\Service\Database;
-use Syntax\Service\WebSocket\AVRService;
-use Syntax\Service\WebSocket\ChangeColorStartMessage;
-use Syntax\Service\WebSocket\ChangeStateStartMessage;
+use Syntax\Service\UC\AVRService;
+use Syntax\Service\UC\ChangeColorStartMessage;
+use Syntax\Service\UC\ChangeStateStartMessage;
 use Syntax\WebSocket\InMemory\Clients;
 use Syntax\WebSocket\InMemory\ColorChangesQueue;
 
@@ -25,122 +27,52 @@ class MessageComponent implements MessageComponentInterface
     private $clients;
 
     /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * @var Stats
-     */
-    private $stats;
-
-    /**
      * @var ControllersDispatcher
      */
     private $controllers;
 
     /**
-     * @var ChangeStateStartMessage
-     */
-    private $changeStateStartMessage;
-
-    /**
-     * @var ChangeColorStartMessage
-     */
-    private $changeColorStartMessage;
-
-    /**
-     * @var AVRService
-     */
-    private $avr;
-
-    const LOGS_LIMIT = 50;
-
-    /**
      * MessageComponent constructor.
      * @param Clients $clients
-     * @param Stats $stats
-     * @param Database $database
-     * @param ControllersDispatcher $dispatcher
-     * @param ChangeStateStartMessage $changeStateStartMessage
-     * @param ChangeColorStartMessage $changeColorStartMessage
-     * @param AVRService $avr
-     * @param ColorChangesQueue $queue
-     * @param LogDisplayer $logDisplayer
-     * @param Input $adminInput
+     * @param ControllersDispatcher $controllers
      */
-    public function __construct(
-        Clients $clients,
-        Stats $stats,
-        Database $database,
-        ControllersDispatcher $dispatcher,
-        ChangeStateStartMessage $changeStateStartMessage,
-        ChangeColorStartMessage $changeColorStartMessage,
-        AVRService $avr,
-        ColorChangesQueue $queue,
-        LogDisplayer $logDisplayer,
-        Input $adminInput
-    )
+    public function __construct(Clients $clients, ControllersDispatcher $controllers)
     {
         $this->clients = $clients;
-        $this->database = $database;
-        $this->stats = $stats;
-        $this->avr = $avr;
-
-        $this->controllers = $dispatcher;
-        $this->changeStateStartMessage = $changeStateStartMessage;
-        $this->changeColorStartMessage = $changeColorStartMessage;
-
-        // init color changes queue
-        $queue->queueLoopCall();
-
-        // init log displayer
-        $logDisplayer->startDisplaying(
-            $this->database->selectQuery('ORDER BY `created_time` DESC LIMIT '.self::LOGS_LIMIT)
-        );
-
-        // init admin input
-        $adminInput->init();
+        $this->controllers = $controllers;
     }
 
     /**
      * @param ConnectionInterface $conn
+     * @throws \Exception
      */
     public function onOpen(ConnectionInterface $conn)
     {
-        $this->stats->addCurrentOnline();
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->stats->addOpenConnection($conn->resourceId, $conn->httpRequest->getHeader('X-Forwarded-For')[0]);
         $this->clients->_add($conn);
-
-        $this->stats->_sendStats();
-        $this->changeStateStartMessage->sendCurrentStates($conn);
-        $this->changeColorStartMessage->sendCurrentColor($conn);
     }
 
     /**
      * @param ConnectionInterface $from
      * @param string $msg
+     * @throws \Exception
      */
     public function onMessage(ConnectionInterface $from, $msg)
     {
         try {
             $input = json_decode($msg, JSON_OBJECT_AS_ARRAY);
             $controller = $this->controllers->findController($input);
-            $response = $controller->execute(
-                $this->controllers->prepareInput($input),
+            $controller->execute(
+                isset($input['value']) ? $input['value'] : [],
                 $from
             );
-            if($response) {
-                $from->send(json_encode($response));
-            }
         } catch(\Exception $e) {
             $from->send(
-                (new Error([
+                json_encode([
                     'reason' => $e->getMessage(),
                     'type' => get_class($e)
-                ]))->_toJSON()
-            );
+                ]
+            ));
+            ChristmasContainer::getLogger()->addLog(Logger::EXCEPTION, $e->getMessage().PHP_EOL.$e->getTraceAsString(), null, null);
 
             if($e instanceof WSException && $e->closeConnection) {
                 $from->close();
@@ -148,21 +80,22 @@ class MessageComponent implements MessageComponentInterface
         }
     }
 
+    /**
+     * @param ConnectionInterface $conn
+     * @throws \Exception
+     */
     public function onClose(ConnectionInterface $conn)
     {
         $this->clients->_remove($conn);
-        $this->stats->removeCurrentOnline();
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->stats->addCloseConnection($conn->resourceId, $conn->httpRequest->getHeader('X-Forwarded-For')[0]);
-        $this->stats->_sendStats();
     }
 
     /**
      * @param ConnectionInterface $conn
      * @param \Exception $e
+     * @throws \Exception
      */
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
-        $this->stats->addMCError($e->getTrace(), $e->getMessage());
+        ChristmasContainer::getLogger()->addLog(Logger::EXCEPTION, $e->getMessage().PHP_EOL.$e->getTraceAsString(), null, null);
     }
 }

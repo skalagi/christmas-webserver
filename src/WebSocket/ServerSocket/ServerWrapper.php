@@ -7,6 +7,8 @@ use React\Socket\Server as Socket;
 use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
+use Syntax\ChristmasContainer;
+use Syntax\Service\Logger;
 use Syntax\WebSocket\MessageComponent;
 
 class ServerWrapper
@@ -35,9 +37,11 @@ class ServerWrapper
 
     /**
      * Run server
+     * @throws \Exception
      */
     public function run()
     {
+        ChristmasContainer::getLogger()->addLog(Logger::SOCKET, 'Server started!', null, null);
         $this->server->run();
     }
 }

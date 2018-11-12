@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
+use Syntax\Service\Logger;
 
 class ChristmasContainer
 {
@@ -20,6 +21,7 @@ class ChristmasContainer
 
     /**
      * @return ContainerInterface
+     * @throws \Exception
      */
     public static function getInstance()
     {
@@ -32,6 +34,7 @@ class ChristmasContainer
 
     /**
      * Build DI container from configurations
+     * @throws \Exception
      */
     public static function buildContainer()
     {
@@ -46,5 +49,15 @@ class ChristmasContainer
         $container->compile();
 
         self::$_instance = $container;
+    }
+
+
+    /**
+     * @return Logger|object
+     * @throws \Exception
+     */
+    public static function getLogger()
+    {
+        return self::getInstance()->get('logger');
     }
 }

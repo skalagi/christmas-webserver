@@ -3,7 +3,9 @@
 namespace Syntax\WebSocket\InMemory;
 
 use Ratchet\ConnectionInterface;
+use Syntax\ChristmasContainer;
 use Syntax\Model\Transport\AbstractTransportJSON;
+use Syntax\Service\Logger;
 
 class Clients implements \Iterator
 {
@@ -99,16 +101,22 @@ class Clients implements \Iterator
     /**
      * @param ConnectionInterface $connection
      * @return $this
+     * @throws \Exception
      */
     public function _add(ConnectionInterface $connection)
     {
         $this->array[] = $connection;
+        /** @noinspection PhpUndefinedFieldInspection */
+        $ip = $connection->httpRequest->getHeader('X-Forwarded-For') ? $connection->httpRequest->getHeader('X-Forwarded-For')[0] : $connection->remoteAddress;
+        /** @noinspection PhpUndefinedFieldInspection */
+        ChristmasContainer::getLogger()->addLog(Logger::CLIENT, 'New client connected', $ip, $connection->resourceId);
         return $this;
     }
 
     /**
      * @param ConnectionInterface $connection
      * @return ConnectionInterface|false
+     * @throws \Exception
      */
     public function _remove(ConnectionInterface $connection)
     {
@@ -116,6 +124,10 @@ class Clients implements \Iterator
             if($connectionInternal == $connection) {
                 $value = $connectionInternal;
                 unset($this->array[$i]);
+                /** @noinspection PhpUndefinedFieldInspection */
+                $ip = $connection->httpRequest->getHeader('X-Forwarded-For') ? $connection->httpRequest->getHeader('X-Forwarded-For')[0] : $connection->remoteAddress;
+                /** @noinspection PhpUndefinedFieldInspection */
+                ChristmasContainer::getLogger()->addLog(Logger::CLIENT, 'Client disconnected', $ip, $connection->resourceId);
                 return $value;
             }
         }
@@ -131,7 +143,7 @@ class Clients implements \Iterator
     {
         foreach($this->array as $connection) {
             if($connection == $connectionInvoker && $connection) continue;
-            $connection->send($msg instanceof AbstractTransportJSON ? $msg->_toJson() : $msg);
+            $connection->send($msg);
         }
     }
 }

@@ -34,6 +34,6 @@ switch($_GET['ctrl']) {
 
     case 'getChannels':
         header('Content-Type: application/json');
-        echo json_encode(\Syntax\Model\Application\Channels::$definition);
+        echo json_encode($container->getParameter('relays'));
         break;
 }
