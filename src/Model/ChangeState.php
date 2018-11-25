@@ -2,12 +2,17 @@
 
 namespace Syntax\Model;
 
-class ChangeState
+class ChangeState extends AbstractModelWithStatus
 {
     /**
      * @var int
      */
     public $id;
+
+    /**
+     * @var int
+     */
+    public $channel;
 
     /**
      * @var bool

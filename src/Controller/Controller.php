@@ -4,6 +4,7 @@ namespace Syntax\Controller;
 
 use Ratchet\ConnectionInterface;
 use Syntax\Service\Queue;
+use Syntax\WebSocket\InMemory\Clients;
 
 abstract class Controller
 {
@@ -13,12 +14,19 @@ abstract class Controller
     protected $queue;
 
     /**
+     * @var Clients
+     */
+    protected $clients;
+
+    /**
      * Controller constructor.
      * @param Queue $queue
+     * @param Clients $clients
      */
-    public function __construct(Queue $queue)
+    public function __construct(Queue $queue, Clients $clients)
     {
         $this->queue = $queue;
+        $this->clients = $clients;
     }
 
     /**

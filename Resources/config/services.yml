@@ -64,8 +64,8 @@ services:
   # Controllers
   ChangeStateController:
     class: '\Syntax\Controller\ChangeStateController'
-    arguments: ['@queue']
+    arguments: ['@queue', '@clients_inmemory']
 
   ChangeColorController:
       class: '\Syntax\Controller\ChangeColorController'
-      arguments: ['@queue']
+      arguments: ['@queue', '@clients_inmemory']

@@ -2,8 +2,13 @@
 
 namespace Syntax\Model;
 
-class ChangeColor
+class ChangeColor extends AbstractModelWithStatus
 {
+    /**
+     * @var int
+     */
+    public $id;
+
     /**
      * @var int
      */

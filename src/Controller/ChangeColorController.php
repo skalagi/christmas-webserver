@@ -3,6 +3,7 @@
 namespace Syntax\Controller;
 
 use Ratchet\ConnectionInterface;
+use Syntax\Model\AbstractModelWithStatus;
 use Syntax\Model\ChangeColor;
 
 class ChangeColorController extends Controller
@@ -16,6 +17,8 @@ class ChangeColorController extends Controller
     public function execute($input, ConnectionInterface &$from)
     {
         $changeColor = new ChangeColor($input);
+        $changeColor->status = AbstractModelWithStatus::STATUS_ADDED;
         $this->queue->push($changeColor);
+        $this->clients->broadcastMessage(json_encode($changeColor));
     }
 }

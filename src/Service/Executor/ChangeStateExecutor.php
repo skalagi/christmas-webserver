@@ -2,6 +2,7 @@
 
 namespace Syntax\Service\Executor;
 
+use Syntax\Model\AbstractModelWithStatus;
 use Syntax\Model\ChangeState;
 use Syntax\Service\UC\Relays;
 
@@ -28,6 +29,7 @@ class ChangeStateExecutor extends AbstractExecutor
     public function execute($data)
     {
         $this->relays->setState($data->id, $data->state);
+        $data->status = AbstractModelWithStatus::STATUS_EXECUTED;
         $this->clients->broadcastMessage(json_encode($data));
     }
 }
