@@ -4,19 +4,11 @@ namespace Syntax\WebSocket;
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
-use Syntax\Admin\Input;
 use Syntax\ChristmasContainer;
 use Syntax\Exception\WSException;
-use Syntax\Model\Transport\Error;
-use Syntax\Service\LogDisplayer;
+use Syntax\Service\Initiator;
 use Syntax\Service\Logger;
-use Syntax\Service\Stats;
-use Syntax\Service\Database;
-use Syntax\Service\UC\AVRService;
-use Syntax\Service\UC\ChangeColorStartMessage;
-use Syntax\Service\UC\ChangeStateStartMessage;
 use Syntax\WebSocket\InMemory\Clients;
-use Syntax\WebSocket\InMemory\ColorChangesQueue;
 
 
 class MessageComponent implements MessageComponentInterface
@@ -32,14 +24,21 @@ class MessageComponent implements MessageComponentInterface
     private $controllers;
 
     /**
+     * @var Initiator
+     */
+    private $initiator;
+
+    /**
      * MessageComponent constructor.
      * @param Clients $clients
      * @param ControllersDispatcher $controllers
+     * @param Initiator $initiator
      */
-    public function __construct(Clients $clients, ControllersDispatcher $controllers)
+    public function __construct(Clients $clients, ControllersDispatcher $controllers, Initiator $initiator)
     {
         $this->clients = $clients;
         $this->controllers = $controllers;
+        $this->initiator = $initiator;
     }
 
     /**
@@ -49,6 +48,8 @@ class MessageComponent implements MessageComponentInterface
     public function onOpen(ConnectionInterface $conn)
     {
         $this->clients->_add($conn);
+
+        $this->initiator->init($conn);
     }
 
     /**

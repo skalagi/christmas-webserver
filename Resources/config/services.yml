@@ -19,7 +19,7 @@ services:
 
   message_component:
     class: '\Syntax\WebSocket\MessageComponent'
-    arguments: ['@clients_inmemory', '@controllers_dispatcher']
+    arguments: ['@clients_inmemory', '@controllers_dispatcher', '@initiator']
 
   clients_inmemory:
     class: '\Syntax\WebSocket\InMemory\Clients'
@@ -60,6 +60,11 @@ services:
   # Logger
   logger:
     class: '\Syntax\Service\Logger'
+
+  # Initiator
+  initiator:
+    class: '\Syntax\Service\Initiator'
+    arguments: ['@avr.led', '@avr.relays']
 
   # Controllers
   ChangeStateController:

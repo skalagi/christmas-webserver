@@ -11,4 +11,5 @@ class AbstractModelWithStatus
 
     const STATUS_ADDED = 'added';
     const STATUS_EXECUTED = 'executed';
+    const STATUS_CURRENT = 'current';
 }
