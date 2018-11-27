@@ -5,13 +5,13 @@
     <title>Test lights GUI</title>
 
     <style>
-        #relays, #led, #queue, #status {
+        #relays, #led, #qContainer, #sContainer {
             padding: 1em;
             border: 1px solid;
             width: 40%;
         }
 
-        #queue {
+        #qContainer {
             width: 50%;
         }
 
@@ -22,10 +22,17 @@
 </head>
 <body>
 
-    <ol id="queue" style="float: right"></ol>
+    <div id="qContainer">
+        <h2 style="width: 100%; text-align: center; margin: 1em;">KOLEJKA</h2>
+        <ol id="queue" style="float: right"></ol>
+    </div>
 
-    <div id="status">-> Ładowanie adresu sterownika..<br/></div>
+    <div id="sContainer">
+        <h2 style="width: 100%; text-align: center; margin: 1em;">POŁĄCZENIE Z SERWEREM</h2>
+        <div id="status">-> Ładowanie adresu sterownika..<br/></div>
+    </div>
     <br/><br/><br/>
+
     <div id="relays"></div>
     <br/>
     <div id="led">
