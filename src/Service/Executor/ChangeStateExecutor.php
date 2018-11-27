@@ -28,7 +28,7 @@ class ChangeStateExecutor extends AbstractExecutor
      */
     public function execute($data)
     {
-        $this->relays->setState($data->id, $data->state);
+        $this->relays->setState($data->channel, $data->state);
         $data->status = AbstractModelWithStatus::STATUS_EXECUTED;
         $this->clients->broadcastMessage(json_encode($data));
     }
