@@ -40,14 +40,6 @@
     </style>
     <script src="?ctrl=_test_js_color"></script>
     <script>
-        function rgbToHex(rgb) {
-            let hex = Number(rgb).toString(16);
-            if (hex.length < 2) {
-                hex = "0" + hex;
-            }
-            return hex;
-        }
-
         function hexToRgb(hex) {
             let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
