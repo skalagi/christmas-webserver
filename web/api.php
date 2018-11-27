@@ -37,4 +37,7 @@ switch($_GET['ctrl']) {
         header('Content-Type: application/json');
         echo json_encode($container->getParameter('relays'));
         break;
+
+    case '_test':
+        echo file_get_contents(__DIR__.'/test.html');
 }
