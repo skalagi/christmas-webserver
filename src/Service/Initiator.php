@@ -73,7 +73,7 @@ class Initiator
         // INIT QUEUE
         $queueItems = $this->queue->getItems();
         $conn->send(json_encode([
-            'queue' => json_encode($queueItems)
+            'queue' => $queueItems
         ]));
     }
 }
