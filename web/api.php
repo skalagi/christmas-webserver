@@ -8,6 +8,7 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 $container = \Syntax\ChristmasContainer::getInstance();
 
+header('Access-Control-Allow-Origin: *');
 switch($_GET['ctrl']) {
     default:
         echo 'Invalid controller!'; exit;
