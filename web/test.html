@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test lights GUI</title>
+
+    <style>
+        #relays, #led, #queue, #status {
+            padding: 1em;
+            border: 1px solid;
+            width: 40%;
+        }
+
+        #queue {
+            width: 50%;
+        }
+
+        #led div {
+            margin: 1em;
+        }
+    </style>
+</head>
+<body>
+
+    <ol id="queue" style="float: right"></ol>
+
+    <div id="status">-> Ładowanie adresu sterownika..<br/></div>
+    <br/><br/><br/>
+    <div id="relays"></div>
+    <br/>
+    <div id="led">
+        <div>
+            <label for="ledR">Czerwony</label>
+            <input type="number" id="ledR"/>
+        </div>
+
+        <div>
+            <label for="ledG">Zielony</label>
+            <input type="number" id="ledG"/>
+        </div>
+
+        <div>
+            <label for="ledB">Niebieski</label>
+            <input type="number" id="ledB"/>
+        </div>
+
+        <button id="sendLED">Zmień kolor</button>
+    </div>
+
+</body>
+
+<script>
+    const REST_API = 'http://robertbrzoza.pl:8000/';
+    init(REST_API);
+
+    function initQueue(queue) {
+        for(let i=0; i<queue.length; i++) {
+            let item = queue[i];
+
+            if(item.channel) {
+                addChangeStateToQueue(item);
+            }
+            if(item.r && item.g && item.b) {
+                addChangeColorToQueue(item);
+            }
+        }
+
+        setStatus('<- Otrzymano i załadowano aktualną kolejkę ['+queue.length+' elementów]');
+    }
+
+    function addChangeStateToQueue(changeState) {
+        let $item = document.createElement('li');
+        $item.dataset.id = changeState.id;
+        $item.innerHTML = 'ChangeState #'+changeState.id+' - Channel '+changeState.channel+' set to '+(changeState.state ? 'ON' : 'OFF');
+
+        let $queue = document.getElementById('queue');
+        $queue.appendChild($item);
+    }
+
+    function addChangeColorToQueue(changeColor) {
+        let $item = document.createElement('li');
+        $item.dataset.id = changeColor.id;
+        $item.innerHTML = 'ChangeColor #'+changeColor.id+' - Color set to ['+changeColor.r+'] ['+changeColor.g+'] ['+changeColor.b+']';
+
+        let $queue = document.getElementById('queue');
+        $queue.appendChild($item);
+    }
+
+    function removeItemFromQueue(id) {
+        let items = document.querySelectorAll('#queue li');
+        for(let i=0; i<items.length; i++) {
+            if(items[i].dataset.id === id) {
+                items[i].remove();
+            }
+        }
+    }
+
+
+    function setButtonState(id, state) {
+        let button = document.querySelector('button[data-id="'+id+'"]');
+        button.style.background = state ? 'darkgreen' : 'red';
+    }
+
+    function setLEDState(r, g, b) {
+        document.getElementById('ledR').value = r;
+        document.getElementById('ledG').value = g;
+        document.getElementById('ledB').value = b;
+    }
+
+    let conn = null;
+
+    function init(restApi) {
+        let req = new XMLHttpRequest();
+        req.open('GET', restApi + '?ctrl=getEndpoint', true);
+        req.onreadystatechange = function () {
+            if (req.readyState !== 4) return true;
+
+            if (req.status === 200) {
+                let data = JSON.parse(req.responseText);
+                setStatus('<- Załadowano adres serwera sterownika!');
+
+                loadRelays(restApi, function() {
+                    setStatus('-> Łączenie do serwera sterownika..');
+                    conn = new WebSocket(data['endpoint']);
+                    conn.onopen = function() {
+                        setStatus('<- Połączono z serwerem sterownika!');
+                        conn.onmessage = function(e) {
+                            var response = JSON.parse(e.data);
+                            console.log(response);
+                            if(!isNaN(response.channel)) {
+                                if(response.status === 'current') {
+                                    setStatus('<- Otrzymano i załadowano aktualny stan przekaźnika '+response.channel+' ['+(response.state ? 'ON' : 'OFF')+']');
+                                    setButtonState(response.channel, response.state);
+                                }
+                                if(response.status === 'added') {
+                                    addChangeStateToQueue(response);
+                                }
+                                if(response.status === 'executed') {
+                                    setButtonState(response.channel, response.state);
+                                    removeItemFromQueue(response.id);
+                                }
+                            }
+
+                            if(response.r && response.g && response.b) {
+                                if(response.status === 'current') {
+                                    setStatus('<- Otrzymano i załadowano aktualny kolor LED ['+response.r+', '+response.g+', '+response.b+']');
+                                    setLEDState(response.r, response.g, response.b);
+                                }
+
+                                if(response.status === 'added') {
+                                    addChangeColorToQueue(response);
+                                }
+
+                                if(response.status === 'executed') {
+                                    setLEDState(response.r, response.g, response.b);
+                                    removeItemFromQueue(response.id);
+                                }
+                            }
+
+                            if(response.queue) {
+                                initQueue(response.queue);
+                            }
+                        };
+                    };
+                });
+            }
+        };
+        req.send();
+
+    }
+
+    document.getElementById('sendLED').onclick = function() {
+        conn.send(JSON.stringify({
+            controller: 'ChangeColor',
+            value: {
+                id: _uniqid(),
+                r: document.getElementById('ledR').value,
+                g: document.getElementById('ledG').value,
+                b: document.getElementById('ledB').value
+            }
+        }));
+    };
+
+    function loadRelays(restApi, callback) {
+        setStatus('-> Ładowanie kanałów przekaźników..');
+
+        let req = new XMLHttpRequest();
+        req.open('GET', restApi + '?ctrl=getChannels', true);
+        req.onreadystatechange = function () {
+            if (req.readyState !== 4) return true;
+
+            if (req.status === 200) {
+                let data = JSON.parse(req.responseText);
+                for (let i = 0; i < data.length; i++) {
+                    let $button = document.createElement('button');
+                    $button.dataset.id = data[i].id;
+                    $button.innerHTML = data[i].name;
+                    $button.style.color = 'white';
+                    $button.style.fontWeight = 'bold';
+                    supportChannelStateChange($button);
+                    document.getElementById('relays').appendChild($button);
+                }
+                setStatus('<- Załadowano kanały przekaźników!');
+
+                callback();
+            }
+        };
+        req.send();
+    }
+
+    function setStatus(status) {
+        document.getElementById('status').innerHTML += status+'<br/>';
+    }
+
+    function supportChannelStateChange(button) {
+        button.onclick = function() {
+            conn.send(JSON.stringify({
+                controller: 'ChangeState',
+                value: {
+                    id: _uniqid(),
+                    channel: button.dataset.id,
+                    state: button.style.background !== 'darkgreen'
+                }
+            }));
+        };
+    }
+
+    function _uniqid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + 'L' + s4() + 'I' + s4() + 'G' + s4() + 'H' + s4() + 'T' + s4() + 'S' + s4();
+    }
+</script>
+</html>
