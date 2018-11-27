@@ -38,6 +38,25 @@
             margin: .5em;
         }
     </style>
+    <script src="jscolor.js"></script>
+    <script>
+        function rgbToHex(rgb) {
+            let hex = Number(rgb).toString(16);
+            if (hex.length < 2) {
+                hex = "0" + hex;
+            }
+            return hex;
+        }
+
+        function hexToRgb(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+    </script>
 </head>
 <body>
 
@@ -72,20 +91,7 @@
         <div id="relays"></div>
         <br/>
         <div id="led">
-            <div>
-                <label for="ledR">Czerwony</label>
-                <input type="number" id="ledR"/>
-            </div>
-
-            <div>
-                <label for="ledG">Zielony</label>
-                <input type="number" id="ledG"/>
-            </div>
-
-            <div>
-                <label for="ledB">Niebieski</label>
-                <input type="number" id="ledB"/>
-            </div>
+            <input class="jscolor" id="colorInput" title="Wybierz kolor">
 
             <button id="sendLED">Zmień kolor</button>
         </div>
@@ -144,9 +150,8 @@
     }
 
     function setLEDState(r, g, b) {
-        document.getElementById('ledR').value = r;
-        document.getElementById('ledG').value = g;
-        document.getElementById('ledB').value = b;
+        let $input = document.getElementById('colorInput');
+        $input.jscolor.fromRGB(r, g, b);
     }
 
     let conn = null;
@@ -225,13 +230,15 @@
     }
 
     document.getElementById('sendLED').onclick = function() {
+        let rgb = hexToRgb(document.getElementById('colorInput').value);
+
         _send({
             controller: 'ChangeColor',
             value: {
                 id: _uniqid(),
-                r: document.getElementById('ledR').value,
-                g: document.getElementById('ledG').value,
-                b: document.getElementById('ledB').value
+                r: rgb.r,
+                g: rgb.g,
+                b: rgb.b
             }
         });
     };
@@ -355,9 +362,8 @@
         let g = (Math.floor(Math.random() * 256) + 1) - 1;
         let b = (Math.floor(Math.random() * 256) + 1) - 1;
 
-        document.getElementById('ledR').value = r;
-        document.getElementById('ledG').value = g;
-        document.getElementById('ledB').value = b;
+        let $input = document.getElementById('colorInput');
+        $input.jscolor.fromRGB(r, g, b);
 
         document.getElementById('sendLED').click();
 
