@@ -75,7 +75,7 @@ class Queue
 
         $this->_is_in_queue_call_now = true;
 
-        $item = array_pop($this->items);
+        $item = array_shift($this->items);
         $service = $this->_getExecutorService($item);
         ChristmasContainer::getLogger()->addLog(Logger::QUEUE, 'Executing queue item: '.get_class($item), null, null);
         $service->execute($item);
