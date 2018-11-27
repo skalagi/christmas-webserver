@@ -57,6 +57,14 @@ class Queue
     }
 
     /**
+     * @return array|ChangeState[]|ChangeColor[]
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
+
+    /**
      * @throws \Exception
      */
     public function _queueCall()

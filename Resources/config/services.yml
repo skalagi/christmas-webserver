@@ -64,7 +64,7 @@ services:
   # Initiator
   initiator:
     class: '\Syntax\Service\Initiator'
-    arguments: ['@avr.led', '@avr.relays']
+    arguments: ['@avr.led', '@avr.relays', '@queue']
 
   # Controllers
   ChangeStateController:

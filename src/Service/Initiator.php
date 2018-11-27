@@ -23,14 +23,21 @@ class Initiator
     private $relays;
 
     /**
+     * @var Queue
+     */
+    private $queue;
+
+    /**
      * Initiator constructor.
      * @param LED $led
      * @param Relays $relays
+     * @param Queue $queue
      */
-    public function __construct(LED $led, Relays $relays)
+    public function __construct(LED $led, Relays $relays, Queue $queue)
     {
         $this->led = $led;
         $this->relays = $relays;
+        $this->queue = $queue;
     }
 
     /**
@@ -62,5 +69,11 @@ class Initiator
 
 
         $conn->send(json_encode($changeColor));
+
+        // INIT QUEUE
+        $queueItems = $this->queue->getItems();
+        $conn->send(json_encode([
+            'queue' => json_encode($queueItems)
+        ]));
     }
 }
