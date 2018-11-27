@@ -40,4 +40,10 @@ switch($_GET['ctrl']) {
 
     case '_test':
         echo file_get_contents(__DIR__.'/test.html');
+        break;
+
+    case '_test_js_color':
+        header('Content-Type: application/javascript');
+        echo file_get_contents(__DIR__.'/jscolor.js');
+        break;
 }
