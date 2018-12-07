@@ -45,6 +45,16 @@ class Initiator
      */
     public function init(ConnectionInterface $conn)
     {
+        $this->initRelays($conn);
+        $this->initLED($conn);
+        $this->initQueue($conn);
+    }
+
+    /**
+     * @param ConnectionInterface $conn
+     */
+    private function initRelays(ConnectionInterface $conn)
+    {
         // INIT RELAYS
         foreach($this->relays->getStates() as $id => $state) {
             $changeState = new ChangeState([]);
@@ -56,7 +66,13 @@ class Initiator
 
             $conn->send(json_encode($changeState));
         }
+    }
 
+    /**
+     * @param ConnectionInterface $conn
+     */
+    private function initLED(ConnectionInterface $conn)
+    {
         // INIT LED
         $changeColor = new ChangeColor([]);
         $changeColor->id = sha1(uniqid().time().uniqid());
@@ -69,7 +85,13 @@ class Initiator
 
 
         $conn->send(json_encode($changeColor));
+    }
 
+    /**
+     * @param ConnectionInterface $conn
+     */
+    private function initQueue(ConnectionInterface $conn)
+    {
         // INIT QUEUE
         $queueItems = $this->queue->getItems();
         $conn->send(json_encode([

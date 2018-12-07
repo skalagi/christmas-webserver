@@ -24,7 +24,6 @@ class ChangeStateExecutor extends AbstractExecutor
 
     /**
      * @param ChangeState $data
-     * @throws \Syntax\Exception\AVRException
      */
     public function execute($data)
     {

@@ -28,17 +28,11 @@ services:
     class: '\Syntax\WebSocket\ControllersDispatcher'
 
   # AVR module
-  avr:
-    class: '\Syntax\Service\UC\AVRService'
-    arguments: ['%avr_host%', '%avr_port%', '%avr_timeout%', '@loop']
-
   avr.led:
     class: '\Syntax\Service\UC\LED'
-    arguments: ['@avr']
 
   avr.relays:
     class: '\Syntax\Service\UC\Relays'
-    arguments: ['@avr']
 
   # Queue
   queue:

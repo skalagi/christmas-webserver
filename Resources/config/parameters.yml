@@ -2,10 +2,6 @@ parameters:
   bind_host: 0.0.0.0
   bind_port: 11221
 
-  avr_host: 127.0.0.1
-  avr_port: 11222
-  avr_timeout: 180
-
   queue_interval: 1
 
   local_ws_endpoint: '192.168.1.101:11221'
