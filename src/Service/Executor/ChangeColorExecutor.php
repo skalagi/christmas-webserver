@@ -24,6 +24,7 @@ class ChangeColorExecutor extends AbstractExecutor
 
     /**
      * @param ChangeColor $data
+     * @throws \Syntax\Exception\AVRException
      */
     public function execute($data)
     {

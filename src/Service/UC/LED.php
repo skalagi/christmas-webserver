@@ -2,7 +2,7 @@
 
 namespace Syntax\Service\UC;
 
-class LED
+class LED extends AbstractUC
 {
     /**
      * @var string
@@ -24,12 +24,13 @@ class LED
      * @param int $g
      * @param int $b
      * @return LED
+     * @throws \Syntax\Exception\AVRException
      */
     public function setColor($r, $g, $b)
     {
         $this->color = sprintf('%s.%s.%s', $r, $g, $b);
 
-        // TODO: Implements execute of change color
+        $this->_execute(__DIR__.'/../../../rpi/write_leds.sh '.$r.' '.$g.' '.$b);
 
         return $this;
     }
