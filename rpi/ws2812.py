@@ -28,14 +28,6 @@ def strip(length, start, color, background):
         else:
             pixels[j] = color
 
-def getBackground(backgroundIndex):
-    if backgroundIndex == 0:
-        return (0, 0, 0)
-    if backgroundIndex == 1:
-        return (30, 30, 30)
-#    if backgroundIndex == 2:
-#        return (230, 230, 230)
-
 def readColorFromFile():
     file = open("../current.color", "r")
     r,g,b = file.read().split(",")
@@ -45,6 +37,6 @@ while True:
     for bIndex in range(0, 2):
         for j in range(1, 8):
             for i in range(num_pixels):
-                strip(j, i, readColorFromFile(), getBackground(bIndex))
+                strip(j, i, readColorFromFile(), (0,0,0))
                 pixels.show()
-                time.sleep(.1)
+                time.sleep(.07)
