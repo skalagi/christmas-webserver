@@ -39,7 +39,7 @@ def getBackground(backgroundIndex):
 def readColorFromFile():
     file = open("../current.color", "r")
     r,g,b = file.read().split(",")
-    return (r, g, b)
+    return (int(float(r)), int(float(g)), int(float(b)))
 
 while True:
     for bIndex in range(0, 2):
