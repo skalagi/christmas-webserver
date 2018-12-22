@@ -37,7 +37,7 @@ def getBackground(backgroundIndex):
 #        return (230, 230, 230)
 
 def readColorFromFile():
-    file = open("../curent.color", "r")
+    file = open("../current.color", "r")
     r,g,b = file.read().split(",")
     return (r, g, b)
 
