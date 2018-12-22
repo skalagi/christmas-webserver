@@ -24,13 +24,12 @@ class LED extends AbstractUC
      * @param int $g
      * @param int $b
      * @return LED
-     * @throws \Syntax\Exception\AVRException
      */
     public function setColor($r, $g, $b)
     {
         $this->color = sprintf('%s.%s.%s', $r, $g, $b);
 
-        $this->_execute(__DIR__.'/../../../rpi/write_leds.sh '.$r.' '.$g.' '.$b);
+        file_put_contents(__DIR__.'/../../../current.color', str_replace('.', ',', $this->color));
 
         return $this;
     }
