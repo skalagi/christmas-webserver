@@ -30,13 +30,20 @@ def strip(length, start, color, background):
 
 def readColorFromFile():
     file = open("../current.color", "r")
-    r,g,b = file.read().split(",")
+    rgb = file.read()
+    if(!rgb):
+        return 0
+    r,g,b = rgb.split(",")
     return (int(float(r)), int(float(g)), int(float(b)))
 
+currentColor = (0,0,0)
 while True:
     for bIndex in range(0, 2):
         for j in range(1, 8):
             for i in range(num_pixels):
-                strip(j, i, readColorFromFile(), (0,0,0))
+                newColor = readColorFromFile()
+                if(newColor):
+                    currentColor = newColor
+                strip(j, i, currentColor, (0,0,0))
                 pixels.show()
-                time.sleep(.07)
+                time.sleep(.06)
