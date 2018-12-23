@@ -24,7 +24,7 @@ class Queue
     /**
      * @var int
      */
-    private $interval = 1;
+    private $interval = .6;
 
     /**
      * @var bool
