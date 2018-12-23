@@ -2,26 +2,34 @@
 
 if [ -z $1 ]
 then
-    $1 = 1
+    ONE=1
+else
+    ONE=$1
 fi
 
 if [ -z $2 ]
 then
-    $2 = 1
+    TWO=1
+else
+    TWO=$2
 fi
+
 
 if [ -z $3 ]
 then
-    $3 = 1
+    THREE=1
+else
+    THREE=$3
 fi
 
 if [ -z $4 ]
 then
-    $4 = 1
+    FOUR=1
+else
+    FOUR=$4
 fi
 
-
-echo $1 > /sys/class/gpio/gpio14/value
-echo $2 > /sys/class/gpio/gpio15/value
-echo $3 > /sys/class/gpio/gpio18/value
-echo $4 > /sys/class/gpio/gpio23/value
+echo $ONE > /sys/class/gpio/gpio14/value
+echo $TWO > /sys/class/gpio/gpio15/value
+echo $THREE > /sys/class/gpio/gpio18/value
+echo $FOUR  > /sys/class/gpio/gpio23/value
