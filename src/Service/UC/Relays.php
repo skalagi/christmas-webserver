@@ -7,7 +7,7 @@ class Relays extends AbstractUC
     /**
      * @var array|bool[]
      */
-    private $states = [false, false, false, false];
+    private $states = [false, false, false];
 
     /**
      * @param $channel
