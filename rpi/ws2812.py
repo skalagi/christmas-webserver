@@ -31,7 +31,7 @@ def strip(length, start, color, background):
 def readColorFromFile():
     file = open("../current.color", "r")
     rgb = file.read()
-    if(!rgb):
+    if(not rgb):
         return 0
     r,g,b = rgb.split(",")
     return (int(float(r)), int(float(g)), int(float(b)))
