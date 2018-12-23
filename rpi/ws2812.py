@@ -36,6 +36,13 @@ def readColorFromFile():
     r,g,b = rgb.split(",")
     return (int(float(r)), int(float(g)), int(float(b)))
 
+def readSleepFile():
+    file = open("../current.sleep", "r")
+    sleepTime = file.read()
+    if(not sleepTime):
+        return .1
+    return float(sleepTime)
+
 currentColor = (0,0,0)
 while True:
     for bIndex in range(0, 2):
@@ -46,4 +53,4 @@ while True:
                     currentColor = newColor
                 strip(j, i, currentColor, (0,0,0))
                 pixels.show()
-                time.sleep(.06)
+                time.sleep(readSleepFile())
