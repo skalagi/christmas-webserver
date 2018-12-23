@@ -37,7 +37,7 @@ class ChangeStateController extends Controller
         }
 
         $lastItem = $items[count($items)-1];
-        if($lastItem instanceof ChangeState && $lastItem->state == $changeState->status && $lastItem->channel == $changeState->channel) {
+        if($lastItem instanceof ChangeState && $lastItem->state == $changeState->state && $lastItem->channel == $changeState->channel) {
             throw new QueueException('Your change relay state was ignored cause previous state is the same!');
         }
     }
