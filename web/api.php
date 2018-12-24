@@ -18,7 +18,7 @@ switch($_GET['ctrl']) {
         $endPoint = $container->getParameter(
             preg_match('/192\.168/', $_SERVER['REMOTE_ADDR']) ? 'local_ws_endpoint' : 'external_ws_endpoint'
         );
-        $protocol = empty($_SERVER['HTTPS']) ? 'ws://' : 'wss://';
+        $protocol = preg_match('/192\.168/', $_SERVER['REMOTE_ADDR']) ? 'ws://' : 'wss://';
 
         echo json_encode([
             'endpoint' => $protocol.$endPoint
