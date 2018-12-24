@@ -13,6 +13,12 @@ switch($_GET['ctrl']) {
     default:
         echo 'Invalid controller!'; exit;
 
+    case 'getMyIP':
+        echo json_encode([
+            'ip' => $_SERVER['REMOTE_ADDR']
+        ]);
+        break;
+
     case 'getEndpoint':
         header('Content-Type: application/json');
         $endPoint = $container->getParameter(
@@ -21,7 +27,8 @@ switch($_GET['ctrl']) {
         $protocol = empty($_SERVER['HTTPS']) ? 'ws://' : 'wss://';
 
         echo json_encode([
-            'endpoint' => $protocol.$endPoint
+            'local' => 'ws://'.$container->getParameter('local_ws_endpoint'),
+            'external' => 'wss://'.$container->getParameter('external_ws_endpoint'),
         ]);
         break;
 
